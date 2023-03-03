@@ -1,0 +1,18 @@
+.card {
+  background-color: var(--neutral-50);
+  filter: var(--dropshadow);
+  border-radius: var(--spacing-2);
+}
+
+.card-top-section {
+  padding: var(--spacing-2);
+}
+
+.card-bottom-section {
+  border-top: 1px solid var(--neutral-900);
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border-bottom-left-radius: var(--spacing-2);
+  border-bottom-right-radius: var(--spacing-2);
+  padding: var(--spacing-2);
+}
