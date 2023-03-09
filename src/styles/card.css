@@ -1,0 +1,14 @@
+.card {
+  background-color: theme(colors.orange.50);
+  border-radius: theme(spacing.2);
+  border: 1px solid theme(colors.neutral.900);
+}
+
+.card-top-section {
+  padding: theme(spacing.2);
+}
+
+.card-bottom-section {
+  border-top: 1px solid theme(colors.neutral.900);
+  padding: theme(spacing.2);
+}

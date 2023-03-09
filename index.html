@@ -6,11 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>F20DV CW1 - COVID-19: A Visual Essay</title>
   </head>
-  <body class="bg-neutral-100 text-neutral-900 max-w-full">
-    <div id="loading-icon" class="min-h-screen flex">
+  <body class="max-w-full bg-orange-100 text-neutral-900">
+    <div id="loading-icon" class="flex min-h-screen">
       <div class="flex flex-1 items-center justify-center">
         <svg
-          class="animate-spin -ml-1 mr-3 h-8 w-8"
+          class="mr-3 -ml-1 h-8 w-8 animate-spin"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -40,7 +40,7 @@
           viewBox="0 0 24 24"
           stroke-width="1.5"
           stroke="currentColor"
-          class="w-8 h-8 mr-2"
+          class="mr-2 h-8 w-8"
         >
           <path
             stroke-linecap="round"
@@ -51,7 +51,10 @@
         <span>Sorry something has gone wrong, please try again.</span>
       </div>
     </div>
-    <div id="default-content" class="hidden container px-2.5 min-h-screen">
+    <div
+      id="default-content"
+      class="container m-auto hidden min-h-screen px-2.5 lg:max-w-5xl"
+    >
       <div>
         <h1 class="text-center">COVID-19: A Visual Essay</h1>
         <div>
@@ -84,7 +87,7 @@
       <div>
         <h2>Which countries most successfully managed the pandemic?</h2>
         <div class="card">
-          <div class="card-top-section">gdriuhgi</div>
+          <div id="line-chart-container" class="card-top-section"></div>
           <div class="card-bottom-section">kfsuheiufs</div>
         </div>
       </div>
@@ -94,16 +97,20 @@
           the spread of the pandemic?
         </h2>
         <div class="card">
-          <div class="card-top-section">gdriuhgi</div>
+          <div class="card-top-section"></div>
           <div class="card-bottom-section">kfsuheiufs</div>
         </div>
       </div>
     </div>
-    <footer id="footer" class="hidden bg-neutral-900 text-neutral-100">
-      <div class="container px-2.5">
+    <footer
+      id="footer"
+      class="mt-8 hidden bg-slate-800 text-neutral-100 md:mt-4"
+    >
+      <div class="container m-auto px-2.5 lg:max-w-5xl">
         <span>By Harris Uddin (hu6)</span>
       </div>
     </footer>
-    <script type="module" src="/main.js"></script>
+    <script type="module" src="/src/main.js"></script>
+    <script type="module" src="/src/loadData.js" defer></script>
   </body>
 </html>
