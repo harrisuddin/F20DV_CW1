@@ -1,0 +1,18 @@
+.dual-axis-line-chart g {
+  font-size: theme(fontSize.xs);
+  line-height: theme(lineHeight.none);
+}
+
+.dual-axis-line-chart .line {
+  fill: theme(fill.none);
+  stroke: theme(stroke.current);
+  stroke-width: theme(strokeWidth[1.5]);
+  stroke-opacity: theme(opacity.100);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.dual-axis-line-chart .line2,
+.dual-axis-line-chart .y-axis2 {
+  color: theme(colors.green.800);
+}
