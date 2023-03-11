@@ -6,7 +6,7 @@ import * as d3 from "d3";
 
 import { owidDataLoadedDispatch, OWID_DATA } from "./loadData";
 import { DualAxisLineChart } from "./components/DualAxisLineChart/DualAxisLineChart";
-import calcDefaultSVGDimensions from "./calcSVGDimensions";
+import calcSVGDimensions from "./calcSVGDimensions";
 
 /**
  * @type {DualAxisLineChart | null}
@@ -23,6 +23,7 @@ function onOwidDataLoaded(testParam) {
       elementToInsertInto: "#line-chart-container",
     });
     dualLineChart.draw();
+    resizeChartsOnWindowResize();
   } catch (error) {
     debugger;
     console.error(error);
@@ -38,8 +39,11 @@ d3.select("#click").on("click", () => {
   dualLineChart.update();
 });
 
-d3.select(window).on("resize", () => {
-  let [width, height] = calcDefaultSVGDimensions();
+d3.select(window).on("resize", resizeChartsOnWindowResize);
+
+function resizeChartsOnWindowResize() {
+  let [width, height] = calcSVGDimensions();
+  console.log(width);
 
   if (dualLineChart) {
     dualLineChart.setParams({
@@ -48,4 +52,4 @@ d3.select(window).on("resize", () => {
     });
     dualLineChart.update();
   }
-});
+}

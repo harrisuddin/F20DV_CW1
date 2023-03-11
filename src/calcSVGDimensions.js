@@ -1,12 +1,13 @@
-let DEFAULT_SVG_WIDTH = 768;
+let DEFAULT_SVG_WIDTH = 750;
 
 /**
- * Return array with default svg width and height depending on window width.
+ * Return array with svg width and height depending on window width.
  * @returns {Array<Number>}
  */
-export default function calcDefaultSVGDimensions() {
+export default function calcSVGDimensions() {
   // get width of window
   let windowWidth = window.innerWidth || document.documentElement.clientWidth;
+  console.log(windowWidth);
 
   /**
    * Calculate the height for 16 by 9 aspect ratio when given width
@@ -26,6 +27,10 @@ export default function calcDefaultSVGDimensions() {
   }
 
   if (windowWidth <= 425) {
+    DEFAULT_SVG_WIDTH = 400;
+  }
+
+  if (windowWidth <= 320) {
     DEFAULT_SVG_WIDTH = 300;
   }
 
