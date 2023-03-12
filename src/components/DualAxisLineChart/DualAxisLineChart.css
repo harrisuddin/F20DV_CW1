@@ -9,16 +9,6 @@
   line-height: theme(lineHeight.none);
 }
 
-.dual-axis-line-chart .y-axis1-label {
-  fill: theme(fill.current);
-  text-anchor: start;
-}
-
-.dual-axis-line-chart .y-axis2-label {
-  fill: theme(fill.current);
-  text-anchor: end;
-}
-
 .dual-axis-line-chart .line {
   fill: theme(fill.none);
   stroke: theme(stroke.current);
@@ -28,8 +18,23 @@
   stroke-linejoin: round;
 }
 
+.dual-axis-line-chart .line1,
+.dual-axis-line-chart .y-axis1 {
+  color: theme(colors.red.800);
+}
+
 .dual-axis-line-chart .line2,
 .dual-axis-line-chart .y-axis2 {
   color: theme(colors.blue.800);
   transition: opacity 1s ease-out;
+}
+
+.dual-axis-line-chart .y-axis1-label {
+  fill: theme(fill.current);
+  text-anchor: start;
+}
+
+.dual-axis-line-chart .y-axis2-label {
+  fill: theme(fill.current);
+  text-anchor: end;
 }

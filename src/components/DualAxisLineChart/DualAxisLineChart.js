@@ -25,7 +25,7 @@ export class DualAxisLineChart {
     /**
      * Left margin, in pixels.
      */
-    marginLeft: 45,
+    marginLeft: 50,
 
     /**
      * Outer width, in pixels.
@@ -75,7 +75,7 @@ export class DualAxisLineChart {
     /**
      * A function that maps data to y values for the first y axis.
      */
-    yMap1: (d) => d.total_deaths,
+    yMap1: (d) => d.new_deaths_smoothed,
 
     /**
      * True when showing the second y-axis, false otherwise.
@@ -85,12 +85,12 @@ export class DualAxisLineChart {
     /**
      * A function that maps data to y values for the second y axis.
      */
-    yMap2: (d) => d.people_fully_vaccinated,
+    yMap2: (d) => d.new_vaccinations_smoothed,
 
     /**
      * A function that formats y axis tick labels for the first y axis.
      */
-    yTickFormat1: (d) => d / 1000000 + "M",
+    yTickFormat1: (d) => d / 1000 + "K",
 
     /**
      * A function that formats y axis tick labels for the second y axis.
@@ -100,12 +100,12 @@ export class DualAxisLineChart {
     /**
      * The label for the first y-axis
      */
-    yLabel1: "Total Deaths (Millions)",
+    yLabel1: "New Deaths Smoothed (Millions)",
 
     /**
      * The label for the second y-axis
      */
-    yLabel2: "People Fully Vaccinated (Millions)",
+    yLabel2: "New Vaccinations Smoothed (Millions)",
   };
 
   /**
@@ -249,7 +249,7 @@ export class DualAxisLineChart {
 
     this.yAxis1 = d3
       .axisLeft(this.yScale1)
-      .ticks(height / 40)
+      .ticks(height / 60)
       .tickFormat(this.params.yTickFormat1);
   }
 
@@ -261,7 +261,7 @@ export class DualAxisLineChart {
 
     this.yAxis2 = d3
       .axisRight(this.yScale2)
-      .ticks(height / 40)
+      .ticks(height / 60)
       .tickFormat(this.params.yTickFormat2);
   }
 
