@@ -1,4 +1,4 @@
-let DEFAULT_SVG_WIDTH = 750;
+let DEFAULT_SVG_WIDTH = 1000;
 
 /**
  * Return array with svg width and height depending on window width.
