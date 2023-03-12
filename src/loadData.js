@@ -78,8 +78,7 @@ import owidCovidData from "./data/owid-covid-data.json?url"; // how to import fi
  * }>}
  */
 async function loadOwidData() {
-  let data = await d3.json(owidCovidData);
-  return data;
+  return d3.json(owidCovidData);
 }
 
 /**

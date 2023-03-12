@@ -7,7 +7,6 @@ let DEFAULT_SVG_WIDTH = 750;
 export default function calcSVGDimensions() {
   // get width of window
   let windowWidth = window.innerWidth || document.documentElement.clientWidth;
-  console.log(windowWidth);
 
   /**
    * Calculate the height for 16 by 9 aspect ratio when given width

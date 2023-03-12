@@ -1,6 +1,22 @@
+.dual-axis-line-chart {
+  max-width: 100%;
+  height: auto;
+  margin: auto;
+}
+
 .dual-axis-line-chart g {
   font-size: theme(fontSize.xs);
   line-height: theme(lineHeight.none);
+}
+
+.dual-axis-line-chart .y-axis1-label {
+  fill: theme(fill.current);
+  text-anchor: start;
+}
+
+.dual-axis-line-chart .y-axis2-label {
+  fill: theme(fill.current);
+  text-anchor: end;
 }
 
 .dual-axis-line-chart .line {
@@ -14,5 +30,6 @@
 
 .dual-axis-line-chart .line2,
 .dual-axis-line-chart .y-axis2 {
-  color: theme(colors.green.800);
+  color: theme(colors.blue.800);
+  transition: opacity 1s ease-out;
 }

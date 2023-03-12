@@ -43,6 +43,11 @@ export class DualAxisLineChart {
     elementToInsertInto: "",
 
     /**
+     * The id to give the SVG element.
+     */
+    id: "most-success-dual-line-chart",
+
+    /**
      * The class to give the created SVG element
      */
     svgElementClass: "dual-axis-line-chart",
@@ -119,6 +124,73 @@ export class DualAxisLineChart {
    */
   setParams(params) {
     this.params = { ...this.params, ...params };
+  }
+
+  /**
+   * Append the svg and necessary elements within it to the DOM.
+   * If any of the elements already are in the DOM then leave them there. ie will not append multiple of the same elements.
+   */
+  initialiseSVGElements() {
+    const { elementToInsertInto, svgElementClass, id, showSecondYAxis } =
+      this.params;
+
+    // if the svg doesn't exist then insert into dom
+    if (d3.select(`#${id}`).empty()) {
+      this.svg = d3
+        .select(elementToInsertInto)
+        .append("svg")
+        .attr("id", id)
+        .attr("class", svgElementClass);
+    }
+
+    // append x-axis if not there
+    if (this.svg.select(".x-axis").empty()) {
+      this.svg.append("g").attr("class", "x-axis");
+    }
+
+    // append first y-axis and its label if not there
+    if (this.svg.select(".y-axis1").empty()) {
+      this.svg
+        .append("g")
+        .attr("class", "y-axis1")
+        .append("text")
+        .attr("class", "y-axis1-label");
+    }
+
+    // append second y-axis and its label if not there
+    // also check to show second axis
+    if (this.svg.select(".y-axis2").empty() && showSecondYAxis) {
+      this.svg
+        .append("g")
+        .attr("class", "y-axis2")
+        .append("text")
+        .attr("class", "y-axis2-label");
+    }
+
+    // append line1 if not there
+    if (this.svg.select(".line1").empty()) {
+      this.svg.append("path").attr("class", "line line1");
+    }
+
+    // append line2 if not there and check to show second axis
+    if (this.svg.select(".line2").empty() && showSecondYAxis) {
+      this.svg.append("path").attr("class", "line line2");
+    }
+  }
+
+  /**
+   * Set the attributes of the SVG element.
+   */
+  setSVGAttributes() {
+    const { width, height, svgElementClass } = this.params;
+
+    this.svg
+      .transition()
+      .duration(1000)
+      .attr("width", width)
+      .attr("height", height)
+      .attr("viewBox", [0, 0, width, height])
+      .attr("class", svgElementClass);
   }
 
   /**
@@ -220,22 +292,6 @@ export class DualAxisLineChart {
   }
 
   /**
-   * Set the attributes of the SVG element.
-   */
-  setSVGAttributes() {
-    const { width, height, svgElementClass } = this.params;
-
-    this.svg
-      .transition()
-      .duration(1000)
-      .attr("width", width)
-      .attr("height", height)
-      .attr("viewBox", [0, 0, width, height])
-      .attr("class", svgElementClass)
-      .attr("style", "max-width: 100%; height: auto; margin: auto");
-  }
-
-  /**
    * Set the x-axis shown in the svg element.
    */
   setSVGXAxis() {
@@ -261,8 +317,6 @@ export class DualAxisLineChart {
       .duration(1000)
       .attr("x", -marginLeft)
       .attr("y", 10)
-      .attr("fill", "currentColor")
-      .attr("text-anchor", "start")
       .text(yLabel1);
 
     this.svg
@@ -285,8 +339,6 @@ export class DualAxisLineChart {
       .duration(1000)
       .attr("x", marginRight)
       .attr("y", 10)
-      .attr("fill", "currentColor")
-      .attr("text-anchor", "end")
       .text(yLabel2);
 
     this.svg
@@ -302,7 +354,12 @@ export class DualAxisLineChart {
    */
   removeSVGAxis2() {
     if (!this.svg.select(".y-axis2").empty()) {
-      this.svg.select(".y-axis2").transition().duration(1000).remove();
+      this.svg
+        .select(".y-axis2")
+        .transition()
+        .duration(1000)
+        .attr("opacity", 0)
+        .remove();
     }
   }
 
@@ -335,15 +392,32 @@ export class DualAxisLineChart {
    */
   removeSVGPath2() {
     if (!this.svg.select(".line2").empty()) {
-      this.svg.select(".line2").transition().duration(1000).remove();
+      this.svg
+        .select(".line2")
+        .transition()
+        .duration(1000)
+        .attr("opacity", 0)
+        .remove();
     }
   }
 
   /**
-   * Used to draw the SVG for the first time.
+   * Used to draw the SVG and can be called to update the visualisation.
    */
   draw() {
-    const { elementToInsertInto, showSecondYAxis } = this.params;
+    const { showSecondYAxis } = this.params;
+
+    // initialise any/all svg elements if needed
+    this.initialiseSVGElements();
+
+    // set the svgs attributes
+    this.setSVGAttributes();
+
+    // if shouldn't show second y-axis then remove the axis and path if exists
+    if (!showSecondYAxis) {
+      this.removeSVGAxis2();
+      this.removeSVGPath2();
+    }
 
     // create scales for all axes
     this.setXScale();
@@ -359,78 +433,24 @@ export class DualAxisLineChart {
     this.setLine1();
     if (showSecondYAxis) this.setLine2();
 
-    // create svg and append to dom
-    this.svg = d3.select(elementToInsertInto).append("svg");
-    this.setSVGAttributes();
-
-    // add x-axis to svg
-    this.svg.append("g").attr("class", "x-axis");
+    // set the x-axis attributes
     this.setSVGXAxis();
 
-    // add first y axis
-    this.svg
-      .append("g")
-      .attr("class", "y-axis1")
-      .append("text")
-      .attr("class", "y-axis1-label");
+    // set the first y axis attributes
     this.setSVGYAxis1();
 
-    // add second y axis
+    // set the second y axis attributes
     if (showSecondYAxis) {
-      this.svg
-        .append("g")
-        .attr("class", "y-axis2")
-        .append("text")
-        .attr("class", "y-axis2-label");
       this.setSVGYAxis2();
     }
 
     // add lines to svg
-    this.svg.append("path").attr("class", "line line1");
+    // set the first path attributes
     this.setSVGPath1();
 
+    // set the second path attributes
     if (showSecondYAxis) {
-      this.svg.append("path").attr("class", "line line2");
       this.setSVGPath2();
     }
-  }
-
-  /**
-   * Used to update the SVG after initially calling `this.draw`.
-   */
-  update() {
-    const { showSecondYAxis } = this.params;
-
-    // update svg element
-    this.setSVGAttributes();
-
-    // if shouldn't show second y-axis then remove the axis and path if exists
-    if (!showSecondYAxis) {
-      this.removeSVGAxis2();
-      this.removeSVGPath2();
-    }
-
-    // update scales range
-    this.setXScale();
-    this.setYScale1();
-    if (showSecondYAxis) this.setYScale2();
-
-    // update all axes
-    this.setXAxis();
-    this.setYAxis1();
-    if (showSecondYAxis) this.setYAxis2();
-
-    // update all axes
-    this.setSVGXAxis();
-    this.setSVGYAxis1();
-    if (showSecondYAxis) this.setSVGYAxis2();
-
-    // update all lines
-    this.setLine1();
-    if (showSecondYAxis) this.setLine2();
-
-    // update paths
-    this.setSVGPath1();
-    if (showSecondYAxis) this.setSVGPath2();
   }
 }

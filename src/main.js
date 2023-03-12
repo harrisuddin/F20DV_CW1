@@ -13,8 +13,7 @@ import calcSVGDimensions from "./calcSVGDimensions";
  */
 let dualLineChart = null;
 
-function onOwidDataLoaded(testParam) {
-  console.log(testParam);
+function onOwidDataLoaded() {
   console.log(OWID_DATA);
   console.log(OWID_DATA["USA"].data);
   try {
@@ -33,23 +32,25 @@ function onOwidDataLoaded(testParam) {
 owidDataLoadedDispatch.on("owidDataLoaded", onOwidDataLoaded);
 
 d3.select("#click").on("click", () => {
-  let owidUKData = OWID_DATA["GBR"].data;
-  dualLineChart.data = owidUKData;
-  dualLineChart.setParams({ width: 1000, height: 562.5 });
-  dualLineChart.update();
+  // let owidUKData = OWID_DATA["GBR"].data;
+  // dualLineChart.data = owidUKData;
+  let { showSecondYAxis } = dualLineChart.params;
+  dualLineChart.setParams({
+    showSecondYAxis: !showSecondYAxis,
+  });
+  dualLineChart.draw();
 });
 
 d3.select(window).on("resize", resizeChartsOnWindowResize);
 
 function resizeChartsOnWindowResize() {
   let [width, height] = calcSVGDimensions();
-  console.log(width);
 
   if (dualLineChart) {
     dualLineChart.setParams({
       width,
       height,
     });
-    dualLineChart.update();
+    dualLineChart.draw();
   }
 }
