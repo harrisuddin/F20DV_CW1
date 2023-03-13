@@ -5,28 +5,20 @@
 }
 
 .dual-axis-line-chart g {
-  font-size: theme(fontSize.xs);
-  line-height: theme(lineHeight.none);
+  @apply text-xs;
 }
 
 .dual-axis-line-chart .line {
   fill: theme(fill.none);
-  stroke: theme(stroke.current);
   stroke-width: theme(strokeWidth[1.5]);
   stroke-opacity: theme(opacity.100);
   stroke-linecap: round;
   stroke-linejoin: round;
-}
-
-.dual-axis-line-chart .line1,
-.dual-axis-line-chart .y-axis1 {
-  color: theme(colors.red.800);
-}
-
-.dual-axis-line-chart .line2,
-.dual-axis-line-chart .y-axis2 {
-  color: theme(colors.blue.800);
   transition: opacity 1s ease-out;
+}
+
+.dual-axis-line-chart .y-axis2-line {
+  stroke-dasharray: 5;
 }
 
 .dual-axis-line-chart .y-axis1-label {

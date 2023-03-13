@@ -15,16 +15,15 @@ let dualLineChart = null;
 
 function onOwidDataLoaded() {
   console.log(OWID_DATA);
-  console.log(OWID_DATA["USA"].data);
+
   try {
-    let owidUSAData = OWID_DATA["USA"].data;
-    dualLineChart = new DualAxisLineChart(owidUSAData, {
+    dualLineChart = new DualAxisLineChart(OWID_DATA, {
       elementToInsertInto: "#line-chart-container",
     });
     dualLineChart.draw();
-    resizeChartsOnWindowResize();
+    resizeCharts();
   } catch (error) {
-    debugger;
+    debugger; // TODO: Remove when finished
     console.error(error);
   }
 }
@@ -32,18 +31,17 @@ function onOwidDataLoaded() {
 owidDataLoadedDispatch.on("owidDataLoaded", onOwidDataLoaded);
 
 d3.select("#click").on("click", () => {
-  // let owidUKData = OWID_DATA["GBR"].data;
-  // dualLineChart.data = owidUKData;
   let { showSecondYAxis } = dualLineChart.params;
   dualLineChart.setParams({
     showSecondYAxis: !showSecondYAxis,
+    selectedISOCodes: ["USA", "KOR"],
   });
   dualLineChart.draw();
 });
 
-d3.select(window).on("resize", resizeChartsOnWindowResize);
+d3.select(window).on("resize", resizeCharts);
 
-function resizeChartsOnWindowResize() {
+function resizeCharts() {
   let [width, height] = calcSVGDimensions();
 
   if (dualLineChart) {

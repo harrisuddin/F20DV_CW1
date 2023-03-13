@@ -15,7 +15,7 @@ export class DualAxisLineChart {
     /**
      * Right margin, in pixels.
      */
-    marginRight: 45,
+    marginRight: 50,
 
     /**
      * Bottom margin, in pixels.
@@ -38,6 +38,16 @@ export class DualAxisLineChart {
     height: 432,
 
     /**
+     * The height of the legend section.
+     */
+    legendHeight: 50,
+
+    /**
+     * The left margin to give the legend.
+     */
+    legendMarginLeft: 0,
+
+    /**
      * The HTML element to insert the chart into.
      */
     elementToInsertInto: "",
@@ -48,22 +58,32 @@ export class DualAxisLineChart {
     id: "most-success-dual-line-chart",
 
     /**
-     * The class to give the created SVG element
+     * The class to give the created SVG element.
      */
     svgElementClass: "dual-axis-line-chart",
 
     /**
-     * The x-axis scale type
+     * The selected ISO codes to filter the data by.
+     */
+    selectedISOCodes: ["KOR", "NZL", "AUS", "TWN", "VNM", "OWID_WRL", "ZMB"],
+
+    /**
+     * A function to group the csv data
+     */
+    groupData: (d) => d.iso_code,
+
+    /**
+     * The x-axis scale type.
      */
     xScaleType: d3.scaleUtc,
 
     /**
-     * The first y-axis scale type
+     * The first y-axis scale type.
      */
     yScaleType1: d3.scaleLinear,
 
     /**
-     * The second y-axis scale type
+     * The second y-axis scale type.
      */
     yScaleType2: d3.scaleLinear,
 
@@ -75,7 +95,7 @@ export class DualAxisLineChart {
     /**
      * A function that maps data to y values for the first y axis.
      */
-    yMap1: (d) => d.new_deaths_smoothed,
+    yMap1: (d) => Number.parseFloat(d.new_deaths_smoothed_per_million),
 
     /**
      * True when showing the second y-axis, false otherwise.
@@ -85,32 +105,37 @@ export class DualAxisLineChart {
     /**
      * A function that maps data to y values for the second y axis.
      */
-    yMap2: (d) => d.new_vaccinations_smoothed,
+    yMap2: (d) => Number.parseFloat(d.new_vaccinations_smoothed_per_million),
 
     /**
      * A function that formats y axis tick labels for the first y axis.
      */
-    yTickFormat1: (d) => d / 1000 + "K",
+    yTickFormat1: (d) => d,
 
     /**
      * A function that formats y axis tick labels for the second y axis.
      */
-    yTickFormat2: (d) => d / 1000000 + "M",
+    yTickFormat2: (d) => d / 1000 + "K",
 
     /**
-     * The label for the first y-axis
+     * The label for the first y-axis.
      */
-    yLabel1: "New Deaths Smoothed (Millions)",
+    yLabel1: "New Deaths Smoothed / Million People",
 
     /**
-     * The label for the second y-axis
+     * The label for the second y-axis.
      */
-    yLabel2: "New Vaccinations Smoothed (Millions)",
+    yLabel2: "New Vacs. Smoothed / Million People (Dashed)",
+
+    /**
+     * The color scale used by the paths.
+     */
+    colorScale: d3.schemeTableau10,
   };
 
   /**
    *
-   * @param {*} data
+   * @param {d3.DSVRowArray<string>} data
    * @param {typeof this.defaultParams} params
    */
   constructor(data, params) {
@@ -167,14 +192,9 @@ export class DualAxisLineChart {
         .attr("class", "y-axis2-label");
     }
 
-    // append line1 if not there
-    if (this.svg.select(".line1").empty()) {
-      this.svg.append("path").attr("class", "line line1");
-    }
-
-    // append line2 if not there and check to show second axis
-    if (this.svg.select(".line2").empty() && showSecondYAxis) {
-      this.svg.append("path").attr("class", "line line2");
+    // append legend if not there
+    if (this.svg.select(".legend").empty()) {
+      this.svg.append("g").attr("class", "legend");
     }
   }
 
@@ -182,14 +202,14 @@ export class DualAxisLineChart {
    * Set the attributes of the SVG element.
    */
   setSVGAttributes() {
-    const { width, height, svgElementClass } = this.params;
+    const { width, height, legendHeight, svgElementClass } = this.params;
 
     this.svg
       .transition()
       .duration(1000)
       .attr("width", width)
-      .attr("height", height)
-      .attr("viewBox", [0, 0, width, height])
+      .attr("height", height + legendHeight)
+      .attr("viewBox", [0, 0, width, height + legendHeight])
       .attr("class", svgElementClass);
   }
 
@@ -198,11 +218,11 @@ export class DualAxisLineChart {
    */
   setXScale() {
     const { marginRight, marginLeft, width, xScaleType, xMap } = this.params;
-    const data = this.data;
+    const filteredData = this.filterData();
 
     this.xScale = xScaleType()
       .range([marginLeft, width - marginRight])
-      .domain(d3.extent(data, xMap));
+      .domain(d3.extent(filteredData, xMap));
   }
 
   /**
@@ -210,11 +230,11 @@ export class DualAxisLineChart {
    */
   setYScale1() {
     const { marginTop, marginBottom, height, yScaleType1, yMap1 } = this.params;
-    const data = this.data;
+    const filteredData = this.filterData();
 
     this.yScale1 = yScaleType1()
       .range([height - marginBottom, marginTop])
-      .domain([0, d3.max(data, yMap1)]);
+      .domain([0, d3.max(filteredData, yMap1)]);
   }
 
   /**
@@ -222,11 +242,11 @@ export class DualAxisLineChart {
    */
   setYScale2() {
     const { marginTop, marginBottom, height, yScaleType2, yMap2 } = this.params;
-    const data = this.data;
+    const filteredData = this.filterData();
 
     this.yScale2 = yScaleType2()
       .range([height - marginBottom, marginTop])
-      .domain([0, d3.max(data, yMap2)]);
+      .domain([0, d3.max(filteredData, yMap2)]);
   }
 
   /**
@@ -245,24 +265,24 @@ export class DualAxisLineChart {
    * Set `this.yAxis1` using `this.yScale1` and any related params.
    */
   setYAxis1() {
-    const { height } = this.params;
+    const { height, yTickFormat1 } = this.params;
 
     this.yAxis1 = d3
       .axisLeft(this.yScale1)
       .ticks(height / 60)
-      .tickFormat(this.params.yTickFormat1);
+      .tickFormat(yTickFormat1);
   }
 
   /**
    * Set `this.yAxis2` using `this.yScale2` and any related params.
    */
   setYAxis2() {
-    const { height } = this.params;
+    const { height, yTickFormat2 } = this.params;
 
     this.yAxis2 = d3
       .axisRight(this.yScale2)
       .ticks(height / 60)
-      .tickFormat(this.params.yTickFormat2);
+      .tickFormat(yTickFormat2);
   }
 
   /**
@@ -295,13 +315,13 @@ export class DualAxisLineChart {
    * Set the x-axis shown in the svg element.
    */
   setSVGXAxis() {
-    const { height, marginBottom } = this.params;
+    const { height, marginBottom, legendHeight } = this.params;
 
     this.svg
       .select(".x-axis")
       .transition()
       .duration(1000)
-      .attr("transform", `translate(0,${height - marginBottom})`)
+      .attr("transform", `translate(0,${height - marginBottom + legendHeight})`)
       .call(this.xAxis);
   }
 
@@ -309,7 +329,14 @@ export class DualAxisLineChart {
    * Set the first y-axis shown in the svg element.
    */
   setSVGYAxis1() {
-    const { marginLeft, yLabel1 } = this.params;
+    const { marginLeft, yLabel1, legendHeight } = this.params;
+
+    this.svg
+      .select(".y-axis1")
+      .transition()
+      .duration(1000)
+      .attr("transform", `translate(${marginLeft}, ${legendHeight})`)
+      .call(this.yAxis1);
 
     this.svg
       .select(".y-axis1-label")
@@ -318,20 +345,20 @@ export class DualAxisLineChart {
       .attr("x", -marginLeft)
       .attr("y", 10)
       .text(yLabel1);
-
-    this.svg
-      .select(".y-axis1")
-      .transition()
-      .duration(1000)
-      .attr("transform", `translate(${marginLeft},0)`)
-      .call(this.yAxis1);
   }
 
   /**
    * Set the second y-axis shown in the svg element.
    */
   setSVGYAxis2() {
-    const { width, marginRight, yLabel2 } = this.params;
+    const { width, marginRight, yLabel2, legendHeight } = this.params;
+
+    this.svg
+      .select(".y-axis2")
+      .transition()
+      .duration(1000)
+      .attr("transform", `translate(${width - marginRight}, ${legendHeight})`)
+      .call(this.yAxis2);
 
     this.svg
       .select(".y-axis2-label")
@@ -340,13 +367,6 @@ export class DualAxisLineChart {
       .attr("x", marginRight)
       .attr("y", 10)
       .text(yLabel2);
-
-    this.svg
-      .select(".y-axis2")
-      .transition()
-      .duration(1000)
-      .attr("transform", `translate(${width - marginRight},0)`)
-      .call(this.yAxis2);
   }
 
   /**
@@ -364,41 +384,150 @@ export class DualAxisLineChart {
   }
 
   /**
+   * Filter the data with `this.params.selectedISOCodes`
+   */
+  filterData() {
+    const { selectedISOCodes, groupData } = this.params;
+
+    const filteredData = this.data.filter((row) =>
+      selectedISOCodes.includes(groupData(row))
+    );
+    return filteredData;
+  }
+
+  /**
+   * Group the data with `this.params.groupData` and filter with `this.params.selectedISOCodes`.
+   */
+  groupAndFilterData() {
+    const { groupData } = this.params;
+
+    const filteredGroupedData = d3.group(this.filterData(), groupData);
+    console.log(filteredGroupedData);
+    return filteredGroupedData;
+  }
+
+  /**
    * Set the svg path of the first line
    */
   setSVGPath1() {
+    const { legendHeight, colorScale } = this.params;
+
     this.svg
-      .select(".line1")
-      .datum(this.data)
+      .selectAll(".y-axis1-line")
+      .data(this.groupAndFilterData())
+      .join("path")
+      .attr(
+        "class",
+        (d, i) => `iso_code iso_code-${d[0]} line y-axis1-line y-axis1-line${i}`
+      )
       .transition()
       .duration(1000)
-      .attr("d", this.line1);
+      .attr("transform", `translate(0, ${legendHeight})`)
+      .attr("stroke", (d, i) => colorScale[i])
+      .attr("d", (d) => this.line1(d[1]));
   }
 
   /**
    * Set the svg path of the second line
    */
   setSVGPath2() {
+    const { legendHeight, colorScale } = this.params;
+
     this.svg
-      .select(".line2")
-      .datum(this.data)
+      .selectAll(".y-axis2-line")
+      .data(this.groupAndFilterData())
+      .join("path")
+      .attr(
+        "class",
+        (d, i) => `iso_code iso_code-${d[0]} line y-axis2-line y-axis2-line${i}`
+      )
       .transition()
       .duration(1000)
-      .attr("d", this.line2);
+      .attr("transform", `translate(0, ${legendHeight})`)
+      .attr("stroke", (d, i) => colorScale[i])
+      .attr("d", (d) => this.line2(d[1]));
   }
 
   /**
    * If the second y-axis exists then remove it
    */
   removeSVGPath2() {
-    if (!this.svg.select(".line2").empty()) {
+    if (!this.svg.selectAll(".y-axis2-line").empty()) {
       this.svg
-        .select(".line2")
+        .selectAll(".y-axis2-line")
         .transition()
         .duration(1000)
         .attr("opacity", 0)
         .remove();
     }
+  }
+
+  setLegend() {
+    const { legendMarginLeft, legendHeight, colorScale } = this.params;
+
+    // set legend attributes
+    let legend = this.svg
+      .select(".legend")
+      .attr("transform", `translate(${legendMarginLeft}, 0)`);
+
+    // get/set necessary variables
+    let filteredGroupedData = this.groupAndFilterData();
+    let circleCircumference = 20;
+    let circleR = circleCircumference / 2;
+    let spaceBetween = 10;
+    let wordWidth = 65;
+    let distanceToNextCircle =
+      circleR + spaceBetween + wordWidth + spaceBetween + circleR;
+
+    /**
+     * Callback for when one of the legend circle/text is hovered.
+     * Will reduce opacity of all legend and lines except the associated one being hovered.
+     */
+    const highlight = (e, d) => {
+      // reduce opacity of all lines and legend related elements
+      this.svg.selectAll(`.iso_code`).classed("opacity-10", true);
+
+      // bring back opacity for hovered legend and its lines
+      this.svg.selectAll(`.iso_code-${d[0]}`).classed("opacity-10", false);
+    };
+
+    /**
+     * Callback for when one of the legend circle/text is stopped hovering.
+     * Will make the opacity of everything back to normal.
+     */
+    const noHighlight = () => {
+      this.svg.selectAll(".iso_code").classed("opacity-10", false);
+    };
+
+    legend
+      .selectAll(".legend-circle")
+      .data(filteredGroupedData)
+      .join("circle")
+      .attr("class", (d) => `iso_code iso_code-${d[0]} legend-circle`)
+      .on("mouseover", highlight)
+      .on("mouseleave", noHighlight)
+      .transition()
+      .duration(1000)
+      .attr("cy", legendHeight / 2)
+      .attr("cx", (d, i) => circleR + i * distanceToNextCircle)
+      .attr("r", circleR)
+      .style("fill", (d, i) => colorScale[i]);
+
+    legend
+      .selectAll(".legend-text")
+      .data(filteredGroupedData)
+      .join("text")
+      .attr("class", (d) => `iso_code iso_code-${d[0]} legend-text`)
+      .on("mouseover", highlight)
+      .on("mouseleave", noHighlight)
+      .transition()
+      .duration(1000)
+      .text((d) => d[0])
+      .attr("y", legendHeight / 2 + circleR / 2)
+      .attr(
+        "x",
+        (d, i) => circleCircumference + spaceBetween + i * distanceToNextCircle
+      );
   }
 
   /**
@@ -452,5 +581,7 @@ export class DualAxisLineChart {
     if (showSecondYAxis) {
       this.setSVGPath2();
     }
+
+    this.setLegend();
   }
 }
