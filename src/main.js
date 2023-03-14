@@ -11,16 +11,32 @@ import calcSVGDimensions from "./calcSVGDimensions";
 /**
  * @type {DualAxisLineChart | null}
  */
-let dualLineChart = null;
+let g7LineChart = null;
+
+/**
+ * @type {DualAxisLineChart | null}
+ */
+let worldDualLineChart = null;
 
 function onOwidDataLoaded() {
   console.log(OWID_DATA);
 
   try {
-    dualLineChart = new DualAxisLineChart(OWID_DATA, {
-      elementToInsertInto: "#line-chart-container",
+    g7LineChart = new DualAxisLineChart(OWID_DATA, {});
+    g7LineChart.draw();
+
+    worldDualLineChart = new DualAxisLineChart(OWID_DATA, {
+      marginRight: 50,
+      elementToInsertInto: "#world-dual-line-chart-container",
+      id: "world-dual-line-chart",
+      selectedISOCodes: ["OWID_WRL"],
+      yMap1: (d) => Number.parseFloat(d.new_deaths_smoothed_per_million),
+      showSecondYAxis: true,
+      // yTickFormat2: (d) => d,
+      yLabel1: "Daily Deaths Smoothed / 1M People",
     });
-    dualLineChart.draw();
+    worldDualLineChart.draw();
+
     resizeCharts();
   } catch (error) {
     debugger; // TODO: Remove when finished
@@ -31,12 +47,11 @@ function onOwidDataLoaded() {
 owidDataLoadedDispatch.on("owidDataLoaded", onOwidDataLoaded);
 
 d3.select("#click").on("click", () => {
-  let { showSecondYAxis } = dualLineChart.params;
-  dualLineChart.setParams({
+  let { showSecondYAxis } = worldDualLineChart.params;
+  worldDualLineChart.setParams({
     showSecondYAxis: !showSecondYAxis,
-    selectedISOCodes: ["USA", "KOR"],
   });
-  dualLineChart.draw();
+  worldDualLineChart.draw();
 });
 
 d3.select(window).on("resize", resizeCharts);
@@ -44,11 +59,20 @@ d3.select(window).on("resize", resizeCharts);
 function resizeCharts() {
   let [width, height] = calcSVGDimensions();
 
-  if (dualLineChart) {
-    dualLineChart.setParams({
+  // TODO: make cleaner
+  if (g7LineChart) {
+    g7LineChart.setParams({
       width,
       height,
     });
-    dualLineChart.draw();
+    g7LineChart.draw();
+  }
+
+  if (worldDualLineChart) {
+    worldDualLineChart.setParams({
+      width,
+      height,
+    });
+    worldDualLineChart.draw();
   }
 }

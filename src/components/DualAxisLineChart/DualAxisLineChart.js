@@ -15,7 +15,7 @@ export class DualAxisLineChart {
     /**
      * Right margin, in pixels.
      */
-    marginRight: 50,
+    marginRight: 20,
 
     /**
      * Bottom margin, in pixels.
@@ -40,7 +40,7 @@ export class DualAxisLineChart {
     /**
      * The height of the legend section.
      */
-    legendHeight: 50,
+    legendHeight: 35,
 
     /**
      * The left margin to give the legend.
@@ -50,12 +50,12 @@ export class DualAxisLineChart {
     /**
      * The HTML element to insert the chart into.
      */
-    elementToInsertInto: "",
+    elementToInsertInto: "#g7-line-chart-container",
 
     /**
      * The id to give the SVG element.
      */
-    id: "most-success-dual-line-chart",
+    id: "g7-line-chart",
 
     /**
      * The class to give the created SVG element.
@@ -65,7 +65,16 @@ export class DualAxisLineChart {
     /**
      * The selected ISO codes to filter the data by.
      */
-    selectedISOCodes: ["KOR", "NZL", "AUS", "TWN", "VNM", "OWID_WRL", "ZMB"],
+    selectedISOCodes: [
+      "USA",
+      "GBR",
+      "JPN",
+      "ITA",
+      "CAN",
+      "DEU",
+      "FRA",
+      "OWID_WRL",
+    ],
 
     /**
      * A function to group the csv data
@@ -95,12 +104,12 @@ export class DualAxisLineChart {
     /**
      * A function that maps data to y values for the first y axis.
      */
-    yMap1: (d) => Number.parseFloat(d.new_deaths_smoothed_per_million),
+    yMap1: (d) => Number.parseFloat(d.total_deaths_per_million),
 
     /**
      * True when showing the second y-axis, false otherwise.
      */
-    showSecondYAxis: true,
+    showSecondYAxis: false,
 
     /**
      * A function that maps data to y values for the second y axis.
@@ -110,22 +119,24 @@ export class DualAxisLineChart {
     /**
      * A function that formats y axis tick labels for the first y axis.
      */
-    yTickFormat1: (d) => d,
+    yTickFormat1: (d) =>
+      Intl.NumberFormat("en", { notation: "compact" }).format(d),
 
     /**
      * A function that formats y axis tick labels for the second y axis.
      */
-    yTickFormat2: (d) => d / 1000 + "K",
+    yTickFormat2: (d) =>
+      Intl.NumberFormat("en", { notation: "compact" }).format(d),
 
     /**
      * The label for the first y-axis.
      */
-    yLabel1: "New Deaths Smoothed / Million People",
+    yLabel1: "Total Deaths / 1M People",
 
     /**
      * The label for the second y-axis.
      */
-    yLabel2: "New Vacs. Smoothed / Million People (Dashed)",
+    yLabel2: "Daily Vacs. Smoothed / 1M People (Dashed)",
 
     /**
      * The color scale used by the paths.
@@ -177,7 +188,7 @@ export class DualAxisLineChart {
     if (this.svg.select(".y-axis1").empty()) {
       this.svg
         .append("g")
-        .attr("class", "y-axis1")
+        .attr("class", "y-axis y-axis1")
         .append("text")
         .attr("class", "y-axis1-label");
     }
@@ -187,7 +198,7 @@ export class DualAxisLineChart {
     if (this.svg.select(".y-axis2").empty() && showSecondYAxis) {
       this.svg
         .append("g")
-        .attr("class", "y-axis2")
+        .attr("class", "y-axis y-axis2")
         .append("text")
         .attr("class", "y-axis2-label");
     }
@@ -218,7 +229,7 @@ export class DualAxisLineChart {
    */
   setXScale() {
     const { marginRight, marginLeft, width, xScaleType, xMap } = this.params;
-    const filteredData = this.filterData();
+    const filteredData = this.filterAndSortData();
 
     this.xScale = xScaleType()
       .range([marginLeft, width - marginRight])
@@ -230,7 +241,7 @@ export class DualAxisLineChart {
    */
   setYScale1() {
     const { marginTop, marginBottom, height, yScaleType1, yMap1 } = this.params;
-    const filteredData = this.filterData();
+    const filteredData = this.filterAndSortData();
 
     this.yScale1 = yScaleType1()
       .range([height - marginBottom, marginTop])
@@ -242,7 +253,7 @@ export class DualAxisLineChart {
    */
   setYScale2() {
     const { marginTop, marginBottom, height, yScaleType2, yMap2 } = this.params;
-    const filteredData = this.filterData();
+    const filteredData = this.filterAndSortData();
 
     this.yScale2 = yScaleType2()
       .range([height - marginBottom, marginTop])
@@ -384,9 +395,10 @@ export class DualAxisLineChart {
   }
 
   /**
-   * Filter the data with `this.params.selectedISOCodes`
+   * Filter the data with `this.params.selectedISOCodes`.
+   * Also sort the data alphabetically.
    */
-  filterData() {
+  filterAndSortData() {
     const { selectedISOCodes, groupData } = this.params;
 
     const filteredData = this.data.filter((row) =>
@@ -401,8 +413,7 @@ export class DualAxisLineChart {
   groupAndFilterData() {
     const { groupData } = this.params;
 
-    const filteredGroupedData = d3.group(this.filterData(), groupData);
-    console.log(filteredGroupedData);
+    const filteredGroupedData = d3.group(this.filterAndSortData(), groupData);
     return filteredGroupedData;
   }
 
@@ -462,6 +473,13 @@ export class DualAxisLineChart {
     }
   }
 
+  /**
+   * Sets the legends attributes.
+   *
+   * Adds a circle and text for each ISO code in `this.groupAndFilterData`.
+   *
+   * The circle/text are given mouseover/mouseout listeners than reduce the opacity of the other non-hovered lines, circles/texts.
+   */
   setLegend() {
     const { legendMarginLeft, legendHeight, colorScale } = this.params;
 
@@ -475,7 +493,7 @@ export class DualAxisLineChart {
     let circleCircumference = 20;
     let circleR = circleCircumference / 2;
     let spaceBetween = 10;
-    let wordWidth = 65;
+    let wordWidth = 30;
     let distanceToNextCircle =
       circleR + spaceBetween + wordWidth + spaceBetween + circleR;
 
@@ -485,10 +503,10 @@ export class DualAxisLineChart {
      */
     const highlight = (e, d) => {
       // reduce opacity of all lines and legend related elements
-      this.svg.selectAll(`.iso_code`).classed("opacity-10", true);
+      this.svg.selectAll(`.iso_code`).classed("opacity-15", true);
 
       // bring back opacity for hovered legend and its lines
-      this.svg.selectAll(`.iso_code-${d[0]}`).classed("opacity-10", false);
+      this.svg.selectAll(`.iso_code-${d[0]}`).classed("opacity-15", false);
     };
 
     /**
@@ -496,7 +514,7 @@ export class DualAxisLineChart {
      * Will make the opacity of everything back to normal.
      */
     const noHighlight = () => {
-      this.svg.selectAll(".iso_code").classed("opacity-10", false);
+      this.svg.selectAll(".iso_code").classed("opacity-15", false);
     };
 
     legend
@@ -522,7 +540,14 @@ export class DualAxisLineChart {
       .on("mouseleave", noHighlight)
       .transition()
       .duration(1000)
-      .text((d) => d[0])
+      .text((d) => {
+        // remove the "OWID_" from the iso code if there
+        // reason is to keep the size of the legend text small
+        if (d[0].length > 3) {
+          return d[0].substring(5);
+        }
+        return d[0];
+      })
       .attr("y", legendHeight / 2 + circleR / 2)
       .attr(
         "x",

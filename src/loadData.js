@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 // how to import file via url https://github.com/vitejs/vite/discussions/8271#discussioncomment-5192948
-import owidCovidCSVData from "./data/owid-covid-data.csv?url";
+import owidCovidCSVData from "./data/owid-covid-data-14-march.csv?url";
 
 /**
  * Load the OWID data as CSV.
@@ -38,6 +38,7 @@ export let owidDataLoadedDispatch = d3.dispatch("owidDataLoaded");
 loadOwidData()
   .then((data) => {
     OWID_DATA = data;
+    // calls the event specified in main.js
     owidDataLoadedDispatch.call("owidDataLoaded");
     showContent();
   })

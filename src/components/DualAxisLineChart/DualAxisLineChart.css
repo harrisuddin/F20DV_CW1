@@ -4,8 +4,18 @@
   margin: auto;
 }
 
+.dual-axis-line-chart .legend .legend-text,
+.dual-axis-line-chart .legend .legend-circle {
+  @apply text-[10px] md:text-xs;
+  transition: opacity 1s ease-out;
+}
+
 .dual-axis-line-chart g {
-  @apply text-xs;
+  @apply md:text-xs;
+}
+
+.dual-axis-line-chart .y-axis {
+  transition: opacity 1s ease-out;
 }
 
 .dual-axis-line-chart .line {

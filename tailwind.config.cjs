@@ -6,6 +6,9 @@ module.exports = {
       strokeWidth: {
         1.5: 1.5,
       },
+      opacity: {
+        15: 0.15,
+      },
     },
   },
   plugins: [],
