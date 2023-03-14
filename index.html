@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <!-- <link rel="icon" type="image/svg+xml" href="/vite.svg" /> -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./src/styles/index.css" />
     <title>F20DV CW1 - COVID-19: A Visual Essay</title>
   </head>
   <body class="max-w-full bg-orange-100 text-neutral-900">
@@ -91,12 +92,45 @@
             <div id="g7-line-chart-container"></div>
             <p>Hover over the legend text/circle to highlight that line.</p>
           </div>
-          <div class="card-bottom-section">kfsuheiufs</div>
+          <div class="card-bottom-section">
+            <div class="flex flex-wrap gap-2">
+              <button
+                id="btn-g7-line-chart-ttl-death-per-mil"
+                class="button-primary"
+              >
+                Show Total Deaths / 1M People
+              </button>
+              <button
+                id="btn-g7-line-chart-ttl-cases-per-mil"
+                class="button-primary"
+              >
+                Show Total Cases / 1M People
+              </button>
+              <button
+                id="btn-g7-line-chart-ttl-vacs-per-100"
+                class="button-primary"
+              >
+                Show Total Vac. Doses / 100 People
+              </button>
+            </div>
+          </div>
         </div>
         <p>
-          The above chart shows that only Japan had lower deaths per 1M people
-          than the global average. Meanwhile, the rest of the G7 had some of the
-          highest values despite being the wealthiest countries.
+          The
+          <a href="#btn-g7-line-chart-ttl-death-per-mil" class="link-to-button"
+            >Show Total Deaths / 1M People</a
+          >
+          chart shows that only Japan had lower deaths per 1M people than the
+          global average. Meanwhile, the rest of the G7 had some of the highest
+          values despite being the wealthiest countries.
+        </p>
+        <p>
+          The
+          <a href="#btn-g7-line-chart-ttl-cases-per-mil" class="link-to-button"
+            >Show Total Cases / 1M People</a
+          >
+          shows a similar story expect even Japan is higher that the global
+          average.
         </p>
       </div>
       <div>
@@ -117,7 +151,7 @@
           <div class="card-top-section">
             <div id="world-dual-line-chart-container"></div>
           </div>
-          <div class="card-bottom-section">kfsuheiufs</div>
+          <div class="card-bottom-section"></div>
         </div>
       </div>
       <div>

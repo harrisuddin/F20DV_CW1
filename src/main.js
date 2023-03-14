@@ -1,9 +1,4 @@
-import "./styles/index.css";
-import "./styles/card.css";
-import "./styles/d3.css";
-
 import * as d3 from "d3";
-
 import { owidDataLoadedDispatch, OWID_DATA } from "./loadData";
 import { DualAxisLineChart } from "./components/DualAxisLineChart/DualAxisLineChart";
 import calcSVGDimensions from "./calcSVGDimensions";
@@ -46,13 +41,31 @@ function onOwidDataLoaded() {
 
 owidDataLoadedDispatch.on("owidDataLoaded", onOwidDataLoaded);
 
-d3.select("#click").on("click", () => {
-  let { showSecondYAxis } = worldDualLineChart.params;
-  worldDualLineChart.setParams({
-    showSecondYAxis: !showSecondYAxis,
+d3.select("#btn-g7-line-chart-ttl-death-per-mil").on("click", () => {
+  g7LineChart.setParams({
+    yMap1: (d) => Number.parseFloat(d.total_deaths_per_million),
+    yLabel1: "Total Deaths / 1M People",
   });
-  worldDualLineChart.draw();
+  g7LineChart.draw();
 });
+
+d3.select("#btn-g7-line-chart-ttl-cases-per-mil").on("click", () => {
+  g7LineChart.setParams({
+    yMap1: (d) => Number.parseFloat(d.total_cases_per_million),
+    yLabel1: "Total Cases / 1M People",
+  });
+  g7LineChart.draw();
+});
+
+d3.select("#btn-g7-line-chart-ttl-vacs-per-100").on("click", () => {
+  g7LineChart.setParams({
+    yMap1: (d) => Number.parseFloat(d.total_vaccinations_per_hundred),
+    yLabel1: "Total Vac. Doses / 100 People",
+  });
+  g7LineChart.draw();
+});
+
+//
 
 d3.select(window).on("resize", resizeCharts);
 

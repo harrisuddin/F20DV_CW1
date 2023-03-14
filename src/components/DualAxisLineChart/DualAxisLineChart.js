@@ -107,14 +107,38 @@ export class DualAxisLineChart {
     yMap1: (d) => Number.parseFloat(d.total_deaths_per_million),
 
     /**
-     * True when showing the second y-axis, false otherwise.
-     */
-    showSecondYAxis: false,
-
-    /**
      * A function that maps data to y values for the second y axis.
      */
     yMap2: (d) => Number.parseFloat(d.new_vaccinations_smoothed_per_million),
+
+    /**
+     * Will be used in the following way to determine whether the field is defined
+     * ```
+     * (d) => xDefined(xMap(d))
+     * ```
+     */
+    xDefined: (val) => !isNaN(val),
+
+    /**
+     * Will be used in the following way to determine whether the field is defined
+     * ```
+     * (d) => yDefined1(yMap1(d))
+     * ```
+     */
+    yDefined1: (val) => !isNaN(val),
+
+    /**
+     * Will be used in the following way to determine whether the field is defined
+     * ```
+     * (d) => yDefined2(yMap2(d))
+     * ```
+     */
+    yDefined2: (val) => !isNaN(val),
+
+    /**
+     * True when showing the second y-axis, false otherwise.
+     */
+    showSecondYAxis: false,
 
     /**
      * A function that formats y axis tick labels for the first y axis.
@@ -225,11 +249,69 @@ export class DualAxisLineChart {
   }
 
   /**
+   * Filter `this.data` and return only rows where the x and y-axes are defined.
+   */
+  filterDataForDefinedRows() {
+    const {
+      showSecondYAxis,
+      yDefined1,
+      yDefined2,
+      xDefined,
+      xMap,
+      yMap1,
+      yMap2,
+    } = this.params;
+
+    let filteredData = this.data.filter((row) => xDefined(xMap(row)));
+    filteredData = this.data.filter((row) => yDefined1(yMap1(row)));
+
+    if (showSecondYAxis) {
+      filteredData = filteredData.filter((row) => yDefined2(yMap2(row)));
+    }
+
+    return filteredData;
+  }
+
+  /**
+   * Filter `this.filterDataForDefinedRows` with `this.params.selectedISOCodes`.
+   */
+  filterDataBySelectedISOCodes() {
+    const { selectedISOCodes, groupData } = this.params;
+
+    const filteredData = this.definedData.filter((row) =>
+      selectedISOCodes.includes(groupData(row))
+    );
+    return filteredData;
+  }
+
+  /**
+   * Group the data with `this.params.groupData` and filter with `this.params.selectedISOCodes`.
+   */
+  groupAndFilterData() {
+    const { groupData } = this.params;
+
+    const filteredGroupedData = d3.group(
+      this.filteredDataByISOCodes,
+      groupData
+    );
+    return filteredGroupedData;
+  }
+
+  /**
+   * Setup the data needed for the chart.
+   */
+  setupData() {
+    this.definedData = this.filterDataForDefinedRows();
+    this.filteredDataByISOCodes = this.filterDataBySelectedISOCodes();
+    this.filteredAndGroupedData = this.groupAndFilterData();
+  }
+
+  /**
    * Set `this.xScale` using values from `this.data` and `this.params`.
    */
   setXScale() {
     const { marginRight, marginLeft, width, xScaleType, xMap } = this.params;
-    const filteredData = this.filterAndSortData();
+    const filteredData = this.filteredDataByISOCodes;
 
     this.xScale = xScaleType()
       .range([marginLeft, width - marginRight])
@@ -241,7 +323,7 @@ export class DualAxisLineChart {
    */
   setYScale1() {
     const { marginTop, marginBottom, height, yScaleType1, yMap1 } = this.params;
-    const filteredData = this.filterAndSortData();
+    const filteredData = this.filteredDataByISOCodes;
 
     this.yScale1 = yScaleType1()
       .range([height - marginBottom, marginTop])
@@ -253,7 +335,7 @@ export class DualAxisLineChart {
    */
   setYScale2() {
     const { marginTop, marginBottom, height, yScaleType2, yMap2 } = this.params;
-    const filteredData = this.filterAndSortData();
+    const filteredData = this.filteredDataByISOCodes;
 
     this.yScale2 = yScaleType2()
       .range([height - marginBottom, marginTop])
@@ -304,7 +386,6 @@ export class DualAxisLineChart {
 
     this.line1 = d3
       .line()
-      .defined((d) => !isNaN(yMap1(d)))
       .x((d) => this.xScale(xMap(d)))
       .y((d) => this.yScale1(yMap1(d)));
   }
@@ -317,7 +398,6 @@ export class DualAxisLineChart {
 
     this.line2 = d3
       .line()
-      .defined((d) => !isNaN(yMap2(d)))
       .x((d) => this.xScale(xMap(d)))
       .y((d) => this.yScale2(yMap2(d)));
   }
@@ -395,29 +475,6 @@ export class DualAxisLineChart {
   }
 
   /**
-   * Filter the data with `this.params.selectedISOCodes`.
-   * Also sort the data alphabetically.
-   */
-  filterAndSortData() {
-    const { selectedISOCodes, groupData } = this.params;
-
-    const filteredData = this.data.filter((row) =>
-      selectedISOCodes.includes(groupData(row))
-    );
-    return filteredData;
-  }
-
-  /**
-   * Group the data with `this.params.groupData` and filter with `this.params.selectedISOCodes`.
-   */
-  groupAndFilterData() {
-    const { groupData } = this.params;
-
-    const filteredGroupedData = d3.group(this.filterAndSortData(), groupData);
-    return filteredGroupedData;
-  }
-
-  /**
    * Set the svg path of the first line
    */
   setSVGPath1() {
@@ -425,7 +482,7 @@ export class DualAxisLineChart {
 
     this.svg
       .selectAll(".y-axis1-line")
-      .data(this.groupAndFilterData())
+      .data(this.filteredAndGroupedData)
       .join("path")
       .attr(
         "class",
@@ -446,7 +503,7 @@ export class DualAxisLineChart {
 
     this.svg
       .selectAll(".y-axis2-line")
-      .data(this.groupAndFilterData())
+      .data(this.filteredAndGroupedData)
       .join("path")
       .attr(
         "class",
@@ -489,7 +546,7 @@ export class DualAxisLineChart {
       .attr("transform", `translate(${legendMarginLeft}, 0)`);
 
     // get/set necessary variables
-    let filteredGroupedData = this.groupAndFilterData();
+    let filteredGroupedData = this.filteredAndGroupedData;
     let circleCircumference = 20;
     let circleR = circleCircumference / 2;
     let spaceBetween = 10;
@@ -561,6 +618,8 @@ export class DualAxisLineChart {
   draw() {
     const { showSecondYAxis } = this.params;
 
+    this.setupData();
+
     // initialise any/all svg elements if needed
     this.initialiseSVGElements();
 
@@ -607,6 +666,7 @@ export class DualAxisLineChart {
       this.setSVGPath2();
     }
 
+    // set/draw the legend
     this.setLegend();
   }
 }

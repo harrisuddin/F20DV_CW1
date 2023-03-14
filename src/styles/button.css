@@ -1,0 +1,5 @@
+.button-primary {
+  @apply px-2 py-1;
+  @apply bg-sky-800 text-neutral-50  hover:bg-sky-700;
+  @apply focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700;
+}
