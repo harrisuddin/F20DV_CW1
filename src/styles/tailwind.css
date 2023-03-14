@@ -3,10 +3,6 @@
 @tailwind base;
 
 @layer base {
-  body {
-    margin: 0;
-  }
-
   h1 {
     @apply my-[0.67em] text-[2em] font-bold;
   }
