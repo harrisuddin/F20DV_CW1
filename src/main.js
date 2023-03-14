@@ -17,7 +17,10 @@ function onOwidDataLoaded() {
   console.log(OWID_DATA);
 
   try {
-    g7LineChart = new DualAxisLineChart(OWID_DATA, {});
+    g7LineChart = new DualAxisLineChart(OWID_DATA, {
+      onLegendMouseover: onDualAxisLineChartLegendMouseover,
+      onLegendMouseout: onDualAxisLineChartLegendMouseout,
+    });
     g7LineChart.draw();
 
     worldDualLineChart = new DualAxisLineChart(OWID_DATA, {
@@ -29,6 +32,9 @@ function onOwidDataLoaded() {
       showSecondYAxis: true,
       // yTickFormat2: (d) => d,
       yLabel1: "Daily Deaths Smoothed / 1M People",
+
+      onLegendMouseover: onDualAxisLineChartLegendMouseover,
+      onLegendMouseout: onDualAxisLineChartLegendMouseout,
     });
     worldDualLineChart.draw();
 
@@ -37,6 +43,47 @@ function onOwidDataLoaded() {
     debugger; // TODO: Remove when finished
     console.error(error);
   }
+}
+
+/**
+ * This function is used for requirement A5.
+ * @param {any} _
+ * @param {[any, d3.DSVRowString<string>[]]} d
+ */
+function onDualAxisLineChartLegendMouseover(_, d) {
+  /**
+   * Callback for when one of the legend circle/text is hovered.
+   * Will reduce opacity of all legend and lines except the associated one being hovered.
+   * @param {d3.Selection<SVGSVGElement, any, HTMLElement, any>} svgElement
+   */
+  const highlightSelectedISOCode = (svgElement) => {
+    // reduce opacity of all lines and legend related elements
+    svgElement.selectAll(`.iso_code`).classed("opacity-20", true);
+
+    // bring back opacity for hovered legend and its lines
+    svgElement.selectAll(`.iso_code-${d[0]}`).classed("opacity-20", false);
+  };
+
+  highlightSelectedISOCode(g7LineChart.svg);
+  highlightSelectedISOCode(worldDualLineChart.svg);
+}
+
+/**
+ * This function is used for requirement A5.
+ * @param {any} _
+ * @param {[any, d3.DSVRowString<string>[]]} d
+ */
+function onDualAxisLineChartLegendMouseout(_, d) {
+  /**
+   * Callback for when one of the legend circle/text is stopped hovering.
+   * Will make the opacity of everything back to normal.
+   */
+  const noHighlight = (svgElement) => {
+    svgElement.selectAll(".iso_code").classed("opacity-20", false);
+  };
+
+  noHighlight(g7LineChart.svg);
+  noHighlight(worldDualLineChart.svg);
 }
 
 owidDataLoadedDispatch.on("owidDataLoaded", onOwidDataLoaded);

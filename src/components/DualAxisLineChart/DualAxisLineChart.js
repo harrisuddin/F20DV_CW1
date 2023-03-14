@@ -166,6 +166,16 @@ export class DualAxisLineChart {
      * The color scale used by the paths.
      */
     colorScale: d3.schemeTableau10,
+
+    /**
+     * Callback function when one of the keys in the legend is hovered.
+     */
+    onLegendMouseover: undefined,
+
+    /**
+     * Callback function when one of the keys in the legend is no longer hovered.
+     */
+    onLegendMouseout: undefined,
   };
 
   /**
@@ -538,7 +548,13 @@ export class DualAxisLineChart {
    * The circle/text are given mouseover/mouseout listeners than reduce the opacity of the other non-hovered lines, circles/texts.
    */
   setLegend() {
-    const { legendMarginLeft, legendHeight, colorScale } = this.params;
+    const {
+      legendMarginLeft,
+      legendHeight,
+      colorScale,
+      onLegendMouseover,
+      onLegendMouseout,
+    } = this.params;
 
     // set legend attributes
     let legend = this.svg
@@ -554,33 +570,13 @@ export class DualAxisLineChart {
     let distanceToNextCircle =
       circleR + spaceBetween + wordWidth + spaceBetween + circleR;
 
-    /**
-     * Callback for when one of the legend circle/text is hovered.
-     * Will reduce opacity of all legend and lines except the associated one being hovered.
-     */
-    const highlight = (e, d) => {
-      // reduce opacity of all lines and legend related elements
-      this.svg.selectAll(`.iso_code`).classed("opacity-20", true);
-
-      // bring back opacity for hovered legend and its lines
-      this.svg.selectAll(`.iso_code-${d[0]}`).classed("opacity-20", false);
-    };
-
-    /**
-     * Callback for when one of the legend circle/text is stopped hovering.
-     * Will make the opacity of everything back to normal.
-     */
-    const noHighlight = () => {
-      this.svg.selectAll(".iso_code").classed("opacity-20", false);
-    };
-
     legend
       .selectAll(".legend-circle")
       .data(filteredGroupedData)
       .join("circle")
       .attr("class", (d) => `iso_code iso_code-${d[0]} legend-circle`)
-      .on("mouseover", highlight)
-      .on("mouseleave", noHighlight)
+      .on("mouseover", onLegendMouseover)
+      .on("mouseleave", onLegendMouseout)
       .transition()
       .duration(1000)
       .attr("cy", legendHeight / 2)
@@ -593,8 +589,8 @@ export class DualAxisLineChart {
       .data(filteredGroupedData)
       .join("text")
       .attr("class", (d) => `iso_code iso_code-${d[0]} legend-text`)
-      .on("mouseover", highlight)
-      .on("mouseleave", noHighlight)
+      .on("mouseover", onLegendMouseover)
+      .on("mouseleave", onLegendMouseout)
       .transition()
       .duration(1000)
       .text((d) => {
