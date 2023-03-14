@@ -65,7 +65,13 @@ d3.select("#btn-g7-line-chart-ttl-vacs-per-100").on("click", () => {
   g7LineChart.draw();
 });
 
-//
+d3.select("#btn-g7-line-chart-stringency-index").on("click", () => {
+  g7LineChart.setParams({
+    yMap1: (d) => Number.parseFloat(d.stringency_index),
+    yLabel1: "Stringency Index",
+  });
+  g7LineChart.draw();
+});
 
 d3.select(window).on("resize", resizeCharts);
 

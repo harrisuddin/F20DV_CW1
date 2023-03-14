@@ -90,7 +90,9 @@
         <div class="card">
           <div class="card-top-section">
             <div id="g7-line-chart-container"></div>
-            <p>Hover over the legend text/circle to highlight that line.</p>
+            <span class="py-2">
+              Hover over the legend text/circle to highlight that line.
+            </span>
           </div>
           <div class="card-bottom-section">
             <div class="flex flex-wrap gap-2">
@@ -105,6 +107,12 @@
                 class="button-primary"
               >
                 Show Total Cases / 1M People
+              </button>
+              <button
+                id="btn-g7-line-chart-stringency-index"
+                class="button-primary"
+              >
+                Show Stringency Index
               </button>
               <button
                 id="btn-g7-line-chart-ttl-vacs-per-100"
@@ -131,6 +139,22 @@
           >
           shows a similar story expect even Japan is higher that the global
           average.
+        </p>
+        <p>
+          Japan managed to keep it's stringency lower and more stable than it's
+          counterparts while having lower cases/deaths as shown in
+          <a href="#btn-g7-line-chart-stringency-index" class="link-to-button">
+            Show Stringency Index </a
+          >.
+        </p>
+        <p>
+          The
+          <a href="#btn-g7-line-chart-ttl-vacs-per-100" class="link-to-button"
+            >Total Vac. Doses / 100 People</a
+          >
+          shows the G7 countries were very successful in administering vaccine
+          doses compared to the global average with Japan beating the rest of
+          it's peers.
         </p>
       </div>
       <div>
