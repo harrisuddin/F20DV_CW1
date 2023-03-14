@@ -503,10 +503,10 @@ export class DualAxisLineChart {
      */
     const highlight = (e, d) => {
       // reduce opacity of all lines and legend related elements
-      this.svg.selectAll(`.iso_code`).classed("opacity-15", true);
+      this.svg.selectAll(`.iso_code`).classed("opacity-20", true);
 
       // bring back opacity for hovered legend and its lines
-      this.svg.selectAll(`.iso_code-${d[0]}`).classed("opacity-15", false);
+      this.svg.selectAll(`.iso_code-${d[0]}`).classed("opacity-20", false);
     };
 
     /**
@@ -514,7 +514,7 @@ export class DualAxisLineChart {
      * Will make the opacity of everything back to normal.
      */
     const noHighlight = () => {
-      this.svg.selectAll(".iso_code").classed("opacity-15", false);
+      this.svg.selectAll(".iso_code").classed("opacity-20", false);
     };
 
     legend

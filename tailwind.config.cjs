@@ -6,8 +6,10 @@ module.exports = {
       strokeWidth: {
         1.5: 1.5,
       },
-      opacity: {
-        15: 0.15,
+      colors: {
+        orange: {
+          75: "#FFF2E1",
+        },
       },
     },
   },

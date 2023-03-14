@@ -1,6 +1,6 @@
 .card {
   --card-border: theme(borderWidth.DEFAULT) solid theme(colors.neutral.900);
-  /* background-color: theme(colors.orange.50); */
+  @apply bg-orange-75 shadow-md;
   border-radius: theme(spacing.2);
   border: var(--card-border);
 }
