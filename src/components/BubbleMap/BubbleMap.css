@@ -10,6 +10,7 @@
 
 .bubble-map-chart .chart-label {
   alignment-baseline: before-edge;
+  @apply text-xs lg:text-sm;
 }
 
 .bubble-map-chart .map-group-path {

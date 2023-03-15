@@ -102,6 +102,7 @@ function onDualAxisLineChartLegendMouseout(_, d) {
 
 owidDataLoadedDispatch.on("owidDataLoaded", onOwidDataLoaded);
 
+// callbacks to control g7 line chart
 d3.select("#btn-g7-line-chart-ttl-death-per-mil").on("click", () => {
   g7LineChart.setParams({
     yMap1: (d) => Number.parseFloat(d.total_deaths_per_million),
@@ -109,7 +110,6 @@ d3.select("#btn-g7-line-chart-ttl-death-per-mil").on("click", () => {
   });
   g7LineChart.draw();
 });
-
 d3.select("#btn-g7-line-chart-ttl-cases-per-mil").on("click", () => {
   g7LineChart.setParams({
     yMap1: (d) => Number.parseFloat(d.total_cases_per_million),
@@ -117,7 +117,6 @@ d3.select("#btn-g7-line-chart-ttl-cases-per-mil").on("click", () => {
   });
   g7LineChart.draw();
 });
-
 d3.select("#btn-g7-line-chart-ttl-vacs-per-100").on("click", () => {
   g7LineChart.setParams({
     yMap1: (d) => Number.parseFloat(d.total_vaccinations_per_hundred),
@@ -125,7 +124,6 @@ d3.select("#btn-g7-line-chart-ttl-vacs-per-100").on("click", () => {
   });
   g7LineChart.draw();
 });
-
 d3.select("#btn-g7-line-chart-stringency-index").on("click", () => {
   g7LineChart.setParams({
     yMap1: (d) => Number.parseFloat(d.stringency_index),
@@ -133,6 +131,33 @@ d3.select("#btn-g7-line-chart-stringency-index").on("click", () => {
   });
   g7LineChart.draw();
 });
+
+// callback to control bubblemap
+d3.select("#btn-bubble-map-2020-01-05").on("click", () => {
+  changeEndDateAndDrawBubbleMap("2020-01-05");
+});
+d3.select("#btn-bubble-map-2020-02-01").on("click", () => {
+  changeEndDateAndDrawBubbleMap("2020-02-01");
+});
+d3.select("#btn-bubble-map-2020-04-01").on("click", () => {
+  changeEndDateAndDrawBubbleMap("2020-04-01");
+});
+d3.select("#btn-bubble-map-2020-09-01").on("click", () => {
+  changeEndDateAndDrawBubbleMap("2020-09-01");
+});
+d3.select("#btn-bubble-map-2021-02-01").on("click", () => {
+  changeEndDateAndDrawBubbleMap("2021-02-01");
+});
+d3.select("#btn-bubble-map-2021-08-01").on("click", () => {
+  changeEndDateAndDrawBubbleMap("2021-08-01");
+});
+
+function changeEndDateAndDrawBubbleMap(chartEndDate) {
+  bubbleMapChart.setParams({
+    chartEndDate,
+  });
+  bubbleMapChart.draw();
+}
 
 d3.select(window).on("resize", resizeCharts);
 

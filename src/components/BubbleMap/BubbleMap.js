@@ -79,7 +79,7 @@ export default class BubbleMap {
      * A single date which is used to show the data on the map just for that day.
      * In format YYYY-MM-DD.
      */
-    chartEndDate: "2020-01-10",
+    chartEndDate: "2020-01-05",
 
     /**
      * Type of geo projection.
@@ -390,17 +390,24 @@ export default class BubbleMap {
   }
 
   setChartLabel() {
-    const { chartLabel } = this.params;
+    const { chartLabel, chartEndDate, circleLegendFormat, circleMap } =
+      this.params;
 
     // draw chart label
     this.svg
       .selectAll(".chart-label")
-      .data([chartLabel])
+      .data([
+        [
+          chartLabel,
+          d3.sum(this.filteredDataByChartEndDate, circleMap),
+          chartEndDate,
+        ],
+      ])
       .join("text")
       .attr("class", "chart-label")
       .attr("x", 0)
       .attr("y", 0)
-      .text((d) => d);
+      .text((d) => d[0] + ": " + circleLegendFormat(d[1]) + " / " + d[2]);
   }
 
   draw() {
@@ -420,10 +427,11 @@ export default class BubbleMap {
     // draw map
     this.setMapGroupPaths();
 
-    this.setChartLabel();
-
     // set the circle scale
     this.setCircleScale();
+
+    // set/draw chart label
+    this.setChartLabel();
 
     // set/draw circles
     this.setCircles();
