@@ -5,7 +5,7 @@ import * as d3 from "d3";
 // this js class just gives dom elements classes that are used in the css file
 import "./DualAxisLineChart.css";
 
-export class DualAxisLineChart {
+export default class DualAxisLineChart {
   defaultParams = {
     /**
      * Top margin, in pixels.
@@ -50,12 +50,12 @@ export class DualAxisLineChart {
     /**
      * The HTML element to insert the chart into.
      */
-    elementToInsertInto: "#g7-line-chart-container",
+    elementToInsertInto: "",
 
     /**
      * The id to give the SVG element.
      */
-    id: "g7-line-chart",
+    id: "",
 
     /**
      * The class to give the created SVG element.

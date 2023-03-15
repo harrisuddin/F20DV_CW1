@@ -1,7 +1,8 @@
 import * as d3 from "d3";
-import { owidDataLoadedDispatch, OWID_DATA } from "./loadData";
-import { DualAxisLineChart } from "./components/DualAxisLineChart/DualAxisLineChart";
+import { owidDataLoadedDispatch, OWID_DATA, GEO_JSON_DATA } from "./loadData";
+import DualAxisLineChart from "./components/DualAxisLineChart/DualAxisLineChart";
 import calcSVGDimensions from "./calcSVGDimensions";
+import BubbleMap from "./components/DualAxisLineChart/BubbleMap/BubbleMap";
 
 /**
  * @type {DualAxisLineChart | null}
@@ -13,15 +14,24 @@ let g7LineChart = null;
  */
 let worldDualLineChart = null;
 
+/**
+ * @type {BubbleMap | null}
+ */
+let bubbleMapChart = null;
+
 function onOwidDataLoaded() {
   console.log(OWID_DATA);
+  console.log(GEO_JSON_DATA);
 
   try {
     g7LineChart = new DualAxisLineChart(OWID_DATA, {
+      elementToInsertInto: "#g7-line-chart-container",
+      id: "g7-line-chart",
+
       onLegendMouseover: onDualAxisLineChartLegendMouseover,
       onLegendMouseout: onDualAxisLineChartLegendMouseout,
     });
-    g7LineChart.draw();
+    // g7LineChart.draw();
 
     worldDualLineChart = new DualAxisLineChart(OWID_DATA, {
       marginRight: 50,
@@ -36,7 +46,11 @@ function onOwidDataLoaded() {
       onLegendMouseover: onDualAxisLineChartLegendMouseover,
       onLegendMouseout: onDualAxisLineChartLegendMouseout,
     });
-    worldDualLineChart.draw();
+
+    bubbleMapChart = new BubbleMap(OWID_DATA, {
+      elementToInsertInto: "#bubble-map-container",
+      id: "bubble-map-chart",
+    });
 
     resizeCharts();
   } catch (error) {
@@ -120,6 +134,13 @@ d3.select("#btn-g7-line-chart-stringency-index").on("click", () => {
   g7LineChart.draw();
 });
 
+d3.select("#click").on("click", () => {
+  bubbleMapChart.setParams({
+    chartDate: "2022-01-01",
+  });
+  bubbleMapChart.draw();
+});
+
 d3.select(window).on("resize", resizeCharts);
 
 function resizeCharts() {
@@ -140,5 +161,13 @@ function resizeCharts() {
       height,
     });
     worldDualLineChart.draw();
+  }
+
+  if (bubbleMapChart) {
+    bubbleMapChart.setParams({
+      width,
+      height,
+    });
+    bubbleMapChart.draw();
   }
 }

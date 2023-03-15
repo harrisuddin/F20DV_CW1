@@ -1,4 +1,4 @@
-let DEFAULT_SVG_WIDTH = 1000;
+let DEFAULT_SVG_WIDTH = 990;
 
 /**
  * Return array with svg width and height depending on window width.
@@ -15,7 +15,7 @@ export default function calcSVGDimensions() {
    */
   const calcHeight16By9 = (w) => (w / 16) * 9;
 
-  DEFAULT_SVG_WIDTH = 1000;
+  DEFAULT_SVG_WIDTH = 990;
 
   if (windowWidth <= 768) {
     DEFAULT_SVG_WIDTH = 750;

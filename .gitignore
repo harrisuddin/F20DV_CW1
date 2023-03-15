@@ -23,5 +23,5 @@ dist-ssr
 *.sln
 *.sw?
 
-# OWID data - over github limit
-/src/data/owid-covid-data*.*
+# All data files
+/src/data/*

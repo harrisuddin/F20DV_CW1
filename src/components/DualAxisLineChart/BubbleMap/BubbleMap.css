@@ -1,0 +1,9 @@
+.bubble-map-chart {
+  max-width: 100%;
+  height: auto;
+  margin: auto;
+}
+
+.bubble-map-chart circle {
+  transition: r 1s ease-in;
+}
