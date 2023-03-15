@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import { owidDataLoadedDispatch, OWID_DATA, GEO_JSON_DATA } from "./loadData";
 import DualAxisLineChart from "./components/DualAxisLineChart/DualAxisLineChart";
 import calcSVGDimensions from "./calcSVGDimensions";
-import BubbleMap from "./components/DualAxisLineChart/BubbleMap/BubbleMap";
+import BubbleMap from "./components/BubbleMap/BubbleMap";
 
 /**
  * @type {DualAxisLineChart | null}

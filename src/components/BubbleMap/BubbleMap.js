@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { GEO_CENTROID_DATA, GEO_JSON_DATA } from "../../../loadData";
+import { GEO_CENTROID_DATA, GEO_JSON_DATA } from "../../loadData";
 import "./BubbleMap.css";
 
 export default class BubbleMap {
