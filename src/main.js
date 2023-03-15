@@ -134,13 +134,6 @@ d3.select("#btn-g7-line-chart-stringency-index").on("click", () => {
   g7LineChart.draw();
 });
 
-d3.select("#click").on("click", () => {
-  bubbleMapChart.setParams({
-    chartEndDate: "2022-01-01",
-  });
-  bubbleMapChart.draw();
-});
-
 d3.select(window).on("resize", resizeCharts);
 
 let prevWidth = null;

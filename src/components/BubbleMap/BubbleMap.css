@@ -8,6 +8,10 @@
   transition: r 1s ease-in;
 }
 
+.bubble-map-chart .chart-label {
+  alignment-baseline: before-edge;
+}
+
 .bubble-map-chart .map-group-path {
   @apply fill-green-700;
   @apply stroke-neutral-500;

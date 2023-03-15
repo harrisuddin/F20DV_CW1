@@ -37,12 +37,12 @@ export default class BubbleMap {
     /**
      * The y position to translate the legend to.
      */
-    legendY: 25,
+    legendY: 40,
 
     /**
      * The x position to translate the legend to.
      */
-    legendX: 25,
+    legendX: 20,
 
     /**
      * The id to give the SVG element.
@@ -338,13 +338,8 @@ export default class BubbleMap {
    * Set/draw the legend
    */
   setLegend() {
-    const {
-      legendX,
-      legendY,
-      circleRadiusRange,
-      circleLegendFormat,
-      legendLabel,
-    } = this.params;
+    const { legendX, legendY, circleRadiusRange, circleLegendFormat } =
+      this.params;
 
     // set legend attributes
     const legend = this.svg
@@ -394,6 +389,20 @@ export default class BubbleMap {
       .text((d) => circleLegendFormat(d));
   }
 
+  setChartLabel() {
+    const { chartLabel } = this.params;
+
+    // draw chart label
+    this.svg
+      .selectAll(".chart-label")
+      .data([chartLabel])
+      .join("text")
+      .attr("class", "chart-label")
+      .attr("x", 0)
+      .attr("y", 0)
+      .text((d) => d);
+  }
+
   draw() {
     // setup data needed to draw
     this.setupData();
@@ -410,6 +419,8 @@ export default class BubbleMap {
 
     // draw map
     this.setMapGroupPaths();
+
+    this.setChartLabel();
 
     // set the circle scale
     this.setCircleScale();
