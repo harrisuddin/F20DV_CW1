@@ -34,15 +34,15 @@ export default class BubbleMap {
      */
     height: 432,
 
-    // /**
-    //  * The height of the legend section.
-    //  */
-    // legendHeight: 35,
+    /**
+     * The y position to translate the legend to.
+     */
+    legendY: 25,
 
-    // /**
-    //  * The left margin to give the legend.
-    //  */
-    // legendMarginLeft: 0,
+    /**
+     * The x position to translate the legend to.
+     */
+    legendX: 25,
 
     /**
      * The id to give the SVG element.
@@ -70,9 +70,52 @@ export default class BubbleMap {
     geoCentroidData: GEO_CENTROID_DATA,
 
     /**
-     * A single date which is used to show the data on the map just for that day.
+     * Function to filter the geo json with
+     * Currently just filtering out antarctica.
      */
-    chartDate: "2020-01-10",
+    filterGeoJson: (d) => d.id != "ATA",
+
+    /**
+     * A single date which is used to show the data on the map just for that day.
+     * In format YYYY-MM-DD.
+     */
+    chartEndDate: "2020-01-10",
+
+    /**
+     * Type of geo projection.
+     */
+    projectionType: d3.geoMercator,
+
+    /**
+     * The center of the projection.
+     */
+    projectionCenter: [0, 20],
+
+    /**
+     * A function for what is being plotted as circles on the map.
+     */
+    circleMap: (d) => Number.parseFloat(d.total_cases),
+
+    /**
+     * The scale for the circle size.
+     */
+    circleScale: d3.scaleSqrt,
+
+    /**
+     * The min/max for the radius of each circle.
+     */
+    circleRadiusRange: [5, 15],
+
+    /**
+     * The format for the legend labels
+     */
+    circleLegendFormat: (d) =>
+      Intl.NumberFormat("en", { notation: "compact" }).format(d),
+
+    /**
+     * The label for the chart
+     */
+    chartLabel: "Total Cases",
   };
 
   /**
@@ -82,7 +125,10 @@ export default class BubbleMap {
   constructor(data, params) {
     this.data = data;
     this.params = { ...this.defaultParams, ...params };
+
+    // calling here because they don't need to be called for every draw.
     this.filterGeoJsonFeatures();
+    this.filterDataByGeoCentroids();
   }
 
   /**
@@ -112,6 +158,10 @@ export default class BubbleMap {
     if (this.svg.select(".map-group").empty()) {
       this.svg.append("g").classed("map-group", true);
     }
+
+    if (this.svg.select(".legend").empty()) {
+      this.svg.append("g").classed("legend", true);
+    }
   }
 
   /**
@@ -129,124 +179,245 @@ export default class BubbleMap {
       .attr("class", svgElementClass);
   }
 
+  /**
+   * Filter the GeoJSON data using `this.params.filterGeoJson`.
+   */
   filterGeoJsonFeatures() {
-    this.params.geoJsonData.features = this.params.geoJsonData.features.filter(
-      (d) => d.id != "ATA"
+    let { geoJsonData, filterGeoJson } = this.params;
+
+    geoJsonData.features = geoJsonData.features.filter(filterGeoJson);
+  }
+
+  /**
+   * Set `this.filteredDataByGeoCentroids` by filtering `this.data` using `this.params.groupData`
+   */
+  filterDataByGeoCentroids() {
+    const { geoCentroidData, groupData } = this.params;
+
+    const filteredData = this.data.filter((dataRow) => {
+      let geoElement = geoCentroidData.find(
+        (geoCentroidRow) => groupData(geoCentroidRow) === groupData(dataRow)
+      );
+      return !!geoElement;
+    });
+    this.filteredDataByGeoCentroids = filteredData;
+  }
+
+  /**
+   * Set `this.filteredDataByChartEndDate` to filter `this.filteredDataByGeoCentroids` again by `this.params.chartEndDate`
+   */
+  filterDataByChartEndDate() {
+    const { chartEndDate } = this.params;
+    this.filteredDataByChartEndDate = this.filteredDataByGeoCentroids.filter(
+      (row) => row.date === chartEndDate
     );
   }
 
-  filterData() {
-    const { chartDate } = this.params;
-    this.filteredDataByDate = this.data.filter((row) => row.date === chartDate);
-  }
-
+  /**
+   * Group the `this.filteredDataByChartEndDate` data with `this.params.groupData`.
+   */
   groupAndFilterData() {
-    const { chartDate, groupData } = this.params;
-    this.filteredGroupedData = d3.group(this.filteredDataByDate, groupData);
-  }
-
-  filterGeoCentroidData() {
-    this.params.geoCentroidData.filter((geoCentroidRow) =>
-      this.data.find((dataRow) => dataRow.iso_code === geoCentroidRow.iso_code)
+    const { groupData } = this.params;
+    this.filteredGroupedData = d3.group(
+      this.filteredDataByChartEndDate,
+      groupData
     );
   }
 
-  draw() {
-    // this.filterGeoCentroidData();
-
-    this.filterData();
-
+  /**
+   * Setup the data needed for draw.
+   */
+  setupData() {
+    this.filterDataByChartEndDate();
     this.groupAndFilterData();
+  }
 
-    let {
+  /**
+   * Set `this.projection` using various params.
+   */
+  setProjection() {
+    const {
       width,
       height,
       marginLeft,
       marginRight,
       marginTop,
       marginBottom,
+      projectionType,
+      projectionCenter,
       geoJsonData,
-      geoCentroidData,
     } = this.params;
 
-    this.initialiseSVGElements();
+    this.projection = projectionType()
+      .center(projectionCenter) // location to zoom on
+      .fitSize(
+        [marginLeft + width + marginRight, marginBottom + height + marginTop],
+        geoJsonData
+      );
+  }
 
-    this.setSVGAttributes();
-
-    this.projection = d3
-      .geoMercator()
-      //   .scale(120) // This is like the zoom
-      .center([0, 20]) // GPS of location to zoom on
-      //   .translate([width / 2, height / 2]);
-      .fitSize([width, height], geoJsonData);
-
+  /**
+   * Set `this.geoPath`
+   */
+  setGeoPath() {
     this.geoPath = d3.geoPath(this.projection);
+  }
 
-    // draw map
+  /**
+   * Set the `.map-group` paths
+   */
+  setMapGroupPaths() {
+    const { geoJsonData } = this.params;
+
     this.svg
       .select(".map-group")
       .selectAll("path")
       .data(geoJsonData.features)
       .join("path")
-      .attr("fill", "green")
-      .attr("d", this.geoPath)
-      .style("stroke", "black")
-      .style("opacity", 0.3);
+      .classed("map-group-path", true)
+      .attr("d", this.geoPath);
+  }
 
-    // draw circles
-    // this.svg
-    //   .selectAll("circle")
-    //   .data(geoCentroidData)
-    //   .join("circle")
-    //   .call((circle) => circle.append("title").text((d) => d.iso_code))
-    //   .attr("r", 6)
-    //   .attr("fill", "blue")
-    //   .style("opacity", 0.4)
-    //   .attr("transform", (d) => {
-    //     let latLong = this.projection([d.long, d.lat]);
-    //     return `translate(${latLong})`;
-    //   });
+  /**
+   * Set `this.circleScale`.
+   */
+  setCircleScale() {
+    const { circleMap, circleScale, circleRadiusRange } = this.params;
 
-    // Add a scale for bubble size
-    const valueExtent = d3.extent(this.filteredDataByDate, (d) =>
-      Number.parseFloat(d.total_cases)
+    this.circleScale = circleScale()
+      .domain(d3.extent(this.filteredDataByChartEndDate, circleMap))
+      .range(circleRadiusRange);
+  }
+
+  /**
+   * Get the projected long and lat coords for a particular iso_code.
+   */
+  getProjectedLongLatForISO(iso_code) {
+    const { geoCentroidData } = this.params;
+
+    // find the iso_code in the centroid data
+    let centroid = geoCentroidData.find(
+      (centroidRow) => centroidRow.iso_code === iso_code
     );
-    console.log(valueExtent);
 
-    const scaleCircleSize = d3
-      .scaleSqrt()
-      .domain(valueExtent) // What's in the data
-      .range([1, 25]); // Size in pixel
+    // return null if not exists
+    if (!centroid) return null;
 
-    const getLongLat = (d) => {
-      let centroid = geoCentroidData.find(
-        (centroidRow) => centroidRow.iso_code === d[0]
-      );
-      if (!centroid) return [-1000, -1000];
-      let longLat = this.projection([centroid.long, centroid.lat]);
-      return longLat;
-    };
+    // otherwise return the projected long and lat
+    return this.projection([centroid.long, centroid.lat]);
+  }
 
+  /**
+   * Set/draw the circles
+   */
+  setCircles() {
     this.svg
-      .selectAll("circle")
+      .selectAll(".bubble-map-circle")
       .data(this.filteredGroupedData)
       .join("circle")
-      .attr("cx", (d) => getLongLat(d) && getLongLat(d)[0])
-      .attr("cy", (d) => getLongLat(d) && getLongLat(d)[1])
+      .attr("class", (d) => `bubble-map-circle iso_code iso_code-${d[0]}`)
+      .attr("transform", (d, i, nodes) => {
+        // get the long lat
+        let longLat = this.getProjectedLongLatForISO(d[0]);
+
+        // if exists then translate circle
+        if (longLat) return `translate(${longLat})`;
+
+        // remove this circle if no lat long for it
+        nodes[i].remove();
+      })
       .transition()
       .duration(1000)
-      .attr("r", (d) => scaleCircleSize(Number.parseFloat(d[1][0].total_cases)))
-      .attr("fill", "blue")
-      .style("opacity", 0.4);
-    //   .attr("transform", (d) => {
-    //     // console.log(d);
-    //     let centroid = geoCentroidData.find(
-    //       (centroidRow) => centroidRow.iso_code === d[0]
-    //     );
-    //     // console.log(centroid);
-    //     if (!centroid) return;
-    //     let latLong = this.projection([centroid.long, centroid.lat]);
-    //     return `translate(${latLong})`;
-    //   });
+      .attr(
+        "r",
+        (d) => this.circleScale(Number.parseFloat(d[1][0].total_cases)) || 0
+      );
+  }
+
+  /**
+   * Set/draw the legend
+   */
+  setLegend() {
+    const {
+      legendX,
+      legendY,
+      circleRadiusRange,
+      circleLegendFormat,
+      legendLabel,
+    } = this.params;
+
+    // set legend attributes
+    const legend = this.svg
+      .select(".legend")
+      .attr("transform", `translate(${legendX}, ${legendY})`);
+
+    // setup variables needed to draw legend
+    const circleScaleDomain = this.circleScale.domain();
+    const circleY = circleRadiusRange[1];
+    const labelX = 40; // the x position of the label
+
+    // draw circles for each element in circle scale domain
+    legend
+      .selectAll(".legend-circle")
+      .data(circleScaleDomain)
+      .join("circle")
+      .attr("class", (d, i) => `legend-circle legend-circle-${i}`)
+      .transition()
+      .duration(1000)
+      .attr("cx", 0)
+      .attr("cy", (d) => circleY - this.circleScale(d))
+      .attr("r", (d) => this.circleScale(d));
+
+    // draw dashed lines to point to the circles
+    legend
+      .selectAll(".legend-line")
+      .data(circleScaleDomain)
+      .join("line")
+      .attr("class", (d, i) => `legend-line legend-line-${i}`)
+      .transition()
+      .duration(1000)
+      .attr("x1", 0)
+      .attr("y1", (d) => circleY - this.circleScale(d))
+      .attr("x2", labelX)
+      .attr("y2", (d) => circleY - this.circleScale(d));
+
+    // draw legend labels
+    legend
+      .selectAll(".legend-text")
+      .data(circleScaleDomain)
+      .join("text")
+      .attr("class", (d, i) => `legend-text legend-text-${i}`)
+      .transition()
+      .duration(1000)
+      .attr("x", labelX)
+      .attr("y", (d) => circleY - this.circleScale(d))
+      .text((d) => circleLegendFormat(d));
+  }
+
+  draw() {
+    // setup data needed to draw
+    this.setupData();
+
+    // initialise svg elements
+    this.initialiseSVGElements();
+
+    // set svg attributes
+    this.setSVGAttributes();
+
+    // set the projection and geo path
+    this.setProjection();
+    this.setGeoPath();
+
+    // draw map
+    this.setMapGroupPaths();
+
+    // set the circle scale
+    this.setCircleScale();
+
+    // set/draw circles
+    this.setCircles();
+
+    // set/draw the legend
+    this.setLegend();
   }
 }

@@ -7,3 +7,28 @@
 .bubble-map-chart circle {
   transition: r 1s ease-in;
 }
+
+.bubble-map-chart .map-group-path {
+  @apply fill-green-700;
+  @apply stroke-neutral-500;
+  @apply opacity-30;
+}
+
+.bubble-map-chart .bubble-map-circle {
+  @apply fill-sky-800/50;
+}
+
+.bubble-map-chart .legend-circle {
+  fill: none;
+  @apply stroke-neutral-900;
+}
+
+.bubble-map-chart .legend-line {
+  stroke-dasharray: 2;
+  @apply stroke-neutral-900;
+}
+
+.bubble-map-chart .legend-text {
+  alignment-baseline: middle;
+  @apply text-xs lg:text-sm;
+}

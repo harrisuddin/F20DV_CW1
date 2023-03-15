@@ -295,7 +295,7 @@ export default class DualAxisLineChart {
   }
 
   /**
-   * Group the data with `this.params.groupData` and filter with `this.params.selectedISOCodes`.
+   * Group the `this.filteredDataByISOCodes` data with `this.params.groupData`.
    */
   groupAndFilterData() {
     const { groupData } = this.params;
@@ -557,7 +557,7 @@ export default class DualAxisLineChart {
     } = this.params;
 
     // set legend attributes
-    let legend = this.svg
+    const legend = this.svg
       .select(".legend")
       .attr("transform", `translate(${legendMarginLeft}, 0)`);
 
