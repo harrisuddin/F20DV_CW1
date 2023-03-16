@@ -176,6 +176,8 @@ export default class DualAxisLineChart {
      * Callback function when one of the keys in the legend is no longer hovered.
      */
     onLegendMouseout: undefined,
+
+    chartEndDate: "",
   };
 
   /**
@@ -260,6 +262,7 @@ export default class DualAxisLineChart {
 
   /**
    * Filter `this.data` and return only rows where the x and y-axes are defined.
+   * Also filter for dates under/equal to `chartEndDate`.
    */
   filterDataForDefinedRows() {
     const {
@@ -270,10 +273,15 @@ export default class DualAxisLineChart {
       xMap,
       yMap1,
       yMap2,
+      chartEndDate,
     } = this.params;
 
     let filteredData = this.data.filter((row) => xDefined(xMap(row)));
     filteredData = this.data.filter((row) => yDefined1(yMap1(row)));
+    if (chartEndDate)
+      filteredData = filteredData.filter(
+        (row) => xMap(row) <= new Date(chartEndDate)
+      );
 
     if (showSecondYAxis) {
       filteredData = filteredData.filter((row) => yDefined2(yMap2(row)));

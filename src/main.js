@@ -132,32 +132,28 @@ d3.select("#btn-g7-line-chart-stringency-index").on("click", () => {
   g7LineChart.draw();
 });
 
-// callback to control bubblemap
-d3.select("#btn-bubble-map-2020-01-05").on("click", () => {
-  changeEndDateAndDrawBubbleMap("2020-01-05");
-});
-d3.select("#btn-bubble-map-2020-02-01").on("click", () => {
-  changeEndDateAndDrawBubbleMap("2020-02-01");
-});
-d3.select("#btn-bubble-map-2020-04-01").on("click", () => {
-  changeEndDateAndDrawBubbleMap("2020-04-01");
-});
-d3.select("#btn-bubble-map-2020-09-01").on("click", () => {
-  changeEndDateAndDrawBubbleMap("2020-09-01");
-});
-d3.select("#btn-bubble-map-2021-02-01").on("click", () => {
-  changeEndDateAndDrawBubbleMap("2021-02-01");
-});
-d3.select("#btn-bubble-map-2021-08-01").on("click", () => {
-  changeEndDateAndDrawBubbleMap("2021-08-01");
-});
-
-function changeEndDateAndDrawBubbleMap(chartEndDate) {
+function changeEndDateAndDrawBubbleMapAndLineCharts(chartEndDate) {
   bubbleMapChart.setParams({
     chartEndDate,
   });
+  g7LineChart.setParams({
+    chartEndDate,
+  });
+  worldDualLineChart.setParams({
+    chartEndDate,
+  });
   bubbleMapChart.draw();
+  g7LineChart.draw();
+  worldDualLineChart.draw();
 }
+
+d3.selectAll(".date-picker").on("change", function (e) {
+  let chartEndDate = e.target.value;
+  if (new Date(chartEndDate)) {
+    d3.selectAll(".date-picker").property("value", chartEndDate);
+    changeEndDateAndDrawBubbleMapAndLineCharts(chartEndDate);
+  }
+});
 
 d3.select(window).on("resize", resizeCharts);
 
@@ -168,6 +164,15 @@ function resizeCharts() {
   if (width === prevWidth) return;
 
   // TODO: make cleaner
+
+  if (bubbleMapChart) {
+    bubbleMapChart.setParams({
+      width,
+      height,
+    });
+    bubbleMapChart.draw();
+  }
+
   if (g7LineChart) {
     g7LineChart.setParams({
       width,
@@ -182,14 +187,6 @@ function resizeCharts() {
       height,
     });
     worldDualLineChart.draw();
-  }
-
-  if (bubbleMapChart) {
-    bubbleMapChart.setParams({
-      width,
-      height,
-    });
-    bubbleMapChart.draw();
   }
 
   prevWidth = width;

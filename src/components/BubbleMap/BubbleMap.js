@@ -79,7 +79,7 @@ export default class BubbleMap {
      * A single date which is used to show the data on the map just for that day.
      * In format YYYY-MM-DD.
      */
-    chartEndDate: "2020-01-05",
+    chartEndDate: "2023-03-07",
 
     /**
      * Type of geo projection.
@@ -347,7 +347,13 @@ export default class BubbleMap {
       .attr("transform", `translate(${legendX}, ${legendY})`);
 
     // setup variables needed to draw legend
-    const circleScaleDomain = this.circleScale.domain();
+    let circleScaleDomain = this.circleScale.domain();
+
+    // fixes bug where domain would contain nans if the date selected didn't have the needed data.
+    if (circleScaleDomain) {
+      let containsNan = circleScaleDomain.some((val) => isNaN(val));
+      if (containsNan) circleScaleDomain = [];
+    }
     const circleY = circleRadiusRange[1];
     const labelX = 40; // the x position of the label
 

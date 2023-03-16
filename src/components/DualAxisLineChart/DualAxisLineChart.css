@@ -6,12 +6,12 @@
 
 .dual-axis-line-chart .legend .legend-text,
 .dual-axis-line-chart .legend .legend-circle {
-  @apply text-[10px] md:text-xs lg:text-sm;
+  @apply text-[11px] md:text-xs lg:text-sm;
   transition: opacity 1s ease-out;
 }
 
 .dual-axis-line-chart g {
-  @apply md:text-xs lg:text-sm;
+  @apply text-[11px] md:text-xs lg:text-sm;
 }
 
 .dual-axis-line-chart .y-axis {

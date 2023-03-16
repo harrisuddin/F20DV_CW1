@@ -85,25 +85,16 @@
             <div id="bubble-map-container"></div>
           </div>
           <div class="card-bottom-section">
-            <div class="button-container">
-              <button id="btn-bubble-map-2020-01-05" class="button-primary">
-                Show 2020-01-05
-              </button>
-              <button id="btn-bubble-map-2020-02-01" class="button-primary">
-                Show 2020-02-01
-              </button>
-              <button id="btn-bubble-map-2020-04-01" class="button-primary">
-                Show 2020-04-01
-              </button>
-              <button id="btn-bubble-map-2020-09-01" class="button-primary">
-                Show 2020-09-01
-              </button>
-              <button id="btn-bubble-map-2021-02-01" class="button-primary">
-                Show 2021-02-01
-              </button>
-              <button id="btn-bubble-map-2021-08-01" class="button-primary">
-                Show 2021-08-01
-              </button>
+            <div class="flex items-center gap-2">
+              <label for="date-picker-0">Show Chart On Specific Date:</label>
+              <input
+                type="date"
+                id="date-picker-0"
+                class="date-picker"
+                value="2023-03-07"
+                min="2020-01-04"
+                max="2023-03-07"
+              />
             </div>
           </div>
         </div>
@@ -128,9 +119,11 @@
           and North America growing the fastest.
         </p>
         <p>
-          On August 1st, total cases are about to exceed 200M with the fastest
-          growing.
+          On August 1st, total cases are about to exceed 200M with Asia being
+          the fastest growing.
         </p>
+        <p>On February 1st 2022, total cases globally is around 379M.</p>
+        <p>On March 7th 2023, total cases is around 759M.</p>
       </div>
       <div>
         <h2>How successfully did the G7 countries manage the pandemic?</h2>
@@ -167,6 +160,17 @@
               >
                 Show Total Vac. Doses / 100 People
               </button>
+              <div class="flex items-center gap-2">
+                <label for="date-picker-1">Change Chart End Date:</label>
+                <input
+                  type="date"
+                  id="date-picker-1"
+                  class="date-picker"
+                  value="2023-03-07"
+                  min="2020-01-04"
+                  max="2023-03-07"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -216,14 +220,27 @@
               Hover over the legend text/circle to highlight that line.
             </span>
           </div>
-          <div class="card-bottom-section"></div>
+          <div class="card-bottom-section">
+            <div class="flex items-center gap-2">
+              <label for="date-picker-2">Change Chart End Date:</label>
+              <input
+                type="date"
+                id="date-picker-2"
+                class="date-picker"
+                value="2023-03-07"
+                min="2020-01-04"
+                max="2023-03-07"
+              />
+            </div>
+          </div>
         </div>
         <p>
           The above chart shows vaccinations had a positive effect on the number
-          of cases globally.
+          of cases globally. As the number of vaccinations rises, the number of
+          deaths slows.
         </p>
       </div>
-      <div>
+      <!-- <div>
         <h2>
           Is there a relationship between the relative “wealth” of a country and
           the spread of the pandemic?
@@ -232,8 +249,8 @@
           <div class="card-top-section">sifuh</div>
           <div class="card-bottom-section">kfsuheiufs</div>
         </div>
-      </div>
-      <div>
+      </div> -->
+      <!-- <div>
         <h2>
           How might the geographical position of a country change how the
           pandemic impacted them?
@@ -242,7 +259,7 @@
           <div class="card-top-section"></div>
           <div class="card-bottom-section">kfsuheiufs</div>
         </div>
-      </div>
+      </div> -->
     </div>
     <footer
       id="footer"
