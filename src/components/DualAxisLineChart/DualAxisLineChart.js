@@ -20,7 +20,7 @@ export default class DualAxisLineChart {
     /**
      * Bottom margin, in pixels.
      */
-    marginBottom: 20,
+    marginBottom: 25,
 
     /**
      * Left margin, in pixels.
@@ -177,7 +177,7 @@ export default class DualAxisLineChart {
      */
     onLegendMouseout: undefined,
 
-    chartEndDate: "",
+    chartEndDate: "2023-03-07",
   };
 
   /**
@@ -278,10 +278,12 @@ export default class DualAxisLineChart {
 
     let filteredData = this.data.filter((row) => xDefined(xMap(row)));
     filteredData = this.data.filter((row) => yDefined1(yMap1(row)));
-    if (chartEndDate)
+    if (chartEndDate) {
       filteredData = filteredData.filter(
         (row) => xMap(row) <= new Date(chartEndDate)
       );
+      // console.log(filteredData);
+    }
 
     if (showSecondYAxis) {
       filteredData = filteredData.filter((row) => yDefined2(yMap2(row)));
@@ -368,7 +370,7 @@ export default class DualAxisLineChart {
 
     this.xAxis = d3
       .axisBottom(this.xScale)
-      .ticks(width / 80)
+      .ticks(width / 100)
       .tickSizeOuter(0);
   }
 

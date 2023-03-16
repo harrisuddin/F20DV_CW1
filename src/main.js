@@ -31,7 +31,6 @@ function onOwidDataLoaded() {
       onLegendMouseover: onDualAxisLineChartLegendMouseover,
       onLegendMouseout: onDualAxisLineChartLegendMouseout,
     });
-    // g7LineChart.draw();
 
     worldDualLineChart = new DualAxisLineChart(OWID_DATA, {
       marginRight: 50,
@@ -40,7 +39,6 @@ function onOwidDataLoaded() {
       selectedISOCodes: ["OWID_WRL"],
       yMap1: (d) => Number.parseFloat(d.new_deaths_smoothed_per_million),
       showSecondYAxis: true,
-      // yTickFormat2: (d) => d,
       yLabel1: "Daily Deaths Smoothed / 1M People",
 
       onLegendMouseover: onDualAxisLineChartLegendMouseover,

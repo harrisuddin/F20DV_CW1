@@ -1,3 +1,4 @@
 .date-picker {
   @apply px-2 py-1;
+  @apply border border-neutral-900 bg-orange-50;
 }
